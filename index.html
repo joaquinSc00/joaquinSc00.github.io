@@ -4,8 +4,10 @@
   <meta charset="UTF-8">
   <title>Horario UTN 2025</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; }
-    table { border-collapse: collapse; width: 100%; }
+    body { font-family: Arial, sans-serif; padding: 20px; background-color: #f9f9f9; }
+    h2 { text-align: center; color: #2e7d32; }
+    #mensaje { font-size: 1.3em; margin: 20px auto; padding: 15px; background: #fff3cd; color: #856404; border: 1px solid #ffeeba; border-radius: 5px; width: fit-content; max-width: 100%; text-align: center; }
+    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
     th, td { border: 1px solid #999; padding: 10px; text-align: center; vertical-align: top; }
     th { background-color: #f0f0f0; }
     .ingles { background-color: #e3f2fd; }
@@ -17,6 +19,9 @@
   </style>
 </head>
 <body>
+  <h2>⏰ Próxima clase</h2>
+  <div id="mensaje">Calculando...</div>
+
   <h2>Horario UTN 2025</h2>
   <table>
     <tr>
@@ -34,5 +39,68 @@
     <tr><td>20:40–21:25</td><td></td><td class="circuitos">Teoría de los Circuitos I<br>Aula 707 (3R3)<br>Prof. Peluca</td><td class="aplicada">Electrónica Aplicada I<br>Lab<br>Prof. Gilberto</td><td class="aplicada">Electrónica Aplicada I<br>Aula 512 (3R2)<br>Prof. Rivas</td><td class="dispo">Dispositivos Electrónicos<br>Aula 209<br>Prof. Guanuco</td></tr>
     <tr><td>21:25–23:05</td><td></td><td></td><td class="aplicada">Electrónica Aplicada I<br>Lab<br>Prof. Gilberto</td><td></td><td class="dispo">Dispositivos Electrónicos<br>Aula 209<br>Prof. Guanuco</td></tr>
   </table>
+
+  <script>
+    const horario = [
+      { dia: 1, hora: "13:15", materia: "Inglés II" },
+      { dia: 2, hora: "18:15", materia: "Dispositivos Electrónicos (Sigampa)" },
+      { dia: 2, hora: "19:55", materia: "Teoría de los Circuitos I (Peluca)" },
+      { dia: 3, hora: "15:40", materia: "Análisis de Señales y Sistemas" },
+      { dia: 3, hora: "20:40", materia: "Electrónica Aplicada I (Gilberto)" },
+      { dia: 4, hora: "15:40", materia: "Análisis de Señales y Sistemas" },
+      { dia: 4, hora: "19:55", materia: "Electrónica Aplicada I (Rivas)" },
+      { dia: 5, hora: "18:15", materia: "Seguridad e Higiene" },
+      { dia: 5, hora: "20:40", materia: "Dispositivos Electrónicos (Guanuco)" }
+    ];
+
+    function mostrarRecordatorio() {
+      const ahora = new Date();
+      const diaSemana = ahora.getDay();
+      const horaActual = ahora.getHours();
+      const minutosActual = ahora.getMinutes();
+      const totalMinActual = horaActual * 60 + minutosActual;
+
+      let mensaje = "No tenés clases dentro de una hora.";
+      let siguienteClase = null;
+
+      for (const clase of horario) {
+        if (clase.dia === diaSemana) {
+          const [h, m] = clase.hora.split(":").map(Number);
+          const totalMinClase = h * 60 + m;
+          if (totalMinClase - totalMinActual <= 60 && totalMinClase - totalMinActual > 0) {
+            mensaje = `En menos de una hora tenés <strong>${clase.materia}</strong> a las ${clase.hora}.`;
+            document.getElementById("mensaje").innerHTML = mensaje;
+            return;
+          }
+        }
+      }
+
+      const ahoraTotalMin = diaSemana * 1440 + totalMinActual;
+      let minDiferencia = Infinity;
+      for (const clase of horario) {
+        const [h, m] = clase.hora.split(":").map(Number);
+        const claseTotalMin = clase.dia * 1440 + (h * 60 + m);
+        const diferencia = claseTotalMin - ahoraTotalMin;
+        if (diferencia > 0 && diferencia < minDiferencia) {
+          minDiferencia = diferencia;
+          siguienteClase = clase;
+        }
+      }
+
+      if (siguienteClase) {
+        const dias = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
+        const diaNombre = dias[siguienteClase.dia];
+        mensaje = `No tenés clases en la próxima hora.<br>Tu próxima clase es <strong>${siguienteClase.materia}</strong> el <strong>${diaNombre}</strong> a las <strong>${siguienteClase.hora}</strong>.`;
+      } else {
+        mensaje = "No tenés más clases programadas por ahora.";
+      }
+
+      document.getElementById("mensaje").innerHTML = mensaje;
+    }
+
+    mostrarRecordatorio();
+    setInterval(mostrarRecordatorio, 60000);
+  </script>
 </body>
 </html>
+
