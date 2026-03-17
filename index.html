@@ -5,212 +5,637 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Horario y Objetivos UTN 2026</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; background-color: #f9f9f9; }
-    h2 { text-align: center; color: #2e7d32; margin-top: 40px; }
-    #mensaje { font-size: 1.3em; margin: 20px auto; padding: 15px; background: #fff3cd; color: #856404; border: 1px solid #ffeeba; border-radius: 5px; width: fit-content; max-width: 100%; text-align: center; }
-    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
-    th, td { border: 1px solid #999; padding: 10px; text-align: center; vertical-align: middle; }
-    th { background-color: #f0f0f0; }
-    .ingles { background-color: #e3f2fd; }
-    .asys { background-color: #fff9c4; }
-    .dispo { background-color: #c8e6c9; }
-    .circuitos { background-color: #d1c4e9; }
-    .aplicada { background-color: #bbdefb; }
-    .seguridad { background-color: #ffe0b2; }
-    .amarillo { background-color: #fff8b0; }
-    .rojo { background-color: #ffcccc; }
-    .tachado { text-decoration: line-through; color: #888; }
-    button { padding: 5px 10px; margin: 2px; }
-    input, select { padding: 5px; }
+    :root {
+      --bg: #eef3f8;
+      --panel: #ffffff;
+      --panel-soft: #f6f9fc;
+      --line: #d9e2ec;
+      --line-strong: #b7c5d6;
+      --text: #1f2937;
+      --muted: #62748a;
+      --accent: #2f7fb2;
+      --time-width: 88px;
+      --day-width: minmax(130px, 1fr);
+      --slot-height: 22px;
+      --header-height: 56px;
+      --radius: 18px;
+      --shadow: 0 16px 40px rgba(31, 41, 55, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 24px;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(47, 127, 178, 0.12), transparent 28%),
+        linear-gradient(180deg, #f8fbfe 0%, var(--bg) 100%);
+      color: var(--text);
+    }
+
+    .page {
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+
+    h2 {
+      margin: 0 0 18px;
+      font-size: clamp(1.5rem, 2vw, 2rem);
+      color: #1e5f86;
+      letter-spacing: -0.02em;
+    }
+
+    .hero {
+      background: var(--panel);
+      border: 1px solid rgba(183, 197, 214, 0.6);
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: var(--shadow);
+      margin-bottom: 28px;
+    }
+
+    #mensaje {
+      font-size: 1.1rem;
+      line-height: 1.5;
+      padding: 18px 20px;
+      background: linear-gradient(135deg, #f7fbff 0%, #edf6fd 100%);
+      border: 1px solid #cfe3f1;
+      border-radius: 16px;
+      color: #20435b;
+    }
+
+    .schedule-shell {
+      background: var(--panel);
+      border: 1px solid rgba(183, 197, 214, 0.7);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      margin-bottom: 32px;
+    }
+
+    .schedule-toolbar {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: center;
+      padding: 20px 22px 14px;
+      border-bottom: 1px solid rgba(183, 197, 214, 0.55);
+      background: linear-gradient(180deg, #fbfdff 0%, #f4f8fb 100%);
+    }
+
+    .schedule-toolbar p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.96rem;
+    }
+
+    .schedule-wrap {
+      overflow-x: auto;
+      padding: 0 14px 18px;
+    }
+
+    .schedule-grid {
+      display: grid;
+      grid-template-columns: var(--time-width) repeat(6, var(--day-width));
+      grid-template-rows: var(--header-height) auto;
+      min-width: 940px;
+    }
+
+    .corner {
+      grid-column: 1;
+      grid-row: 1;
+      padding: 14px 10px;
+      background: #f1f6fb;
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      color: #50708a;
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .day-header {
+      padding: 12px 10px 10px;
+      text-align: center;
+      background: linear-gradient(180deg, #4d93bf 0%, #387ca9 100%);
+      color: #fff;
+      border-right: 1px solid rgba(255, 255, 255, 0.16);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .day-header:last-child {
+      border-right: 0;
+    }
+
+    .day-header span {
+      display: block;
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .day-header small {
+      display: block;
+      margin-top: 2px;
+      font-size: 0.74rem;
+      opacity: 0.9;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .time-column,
+    .day-column {
+      position: relative;
+      min-height: 100%;
+    }
+
+    .time-column {
+      grid-column: 1;
+      grid-row: 2;
+      background: linear-gradient(180deg, #fbfdff 0%, #f5f8fb 100%);
+      border-right: 1px solid var(--line);
+    }
+
+    .day-column {
+      grid-row: 2;
+      background:
+        linear-gradient(180deg, rgba(47, 127, 178, 0.03), rgba(47, 127, 178, 0.03)) top / 100% 100% no-repeat,
+        repeating-linear-gradient(
+          to bottom,
+          transparent 0,
+          transparent calc(var(--slot-height) - 1px),
+          rgba(217, 226, 236, 0.95) calc(var(--slot-height) - 1px),
+          rgba(217, 226, 236, 0.95) var(--slot-height)
+        );
+      border-right: 1px solid var(--line);
+    }
+
+    .day-column:last-child {
+      border-right: 0;
+    }
+
+    .day-column::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        to bottom,
+        transparent 0,
+        transparent calc((var(--slot-height) * 2) - 1px),
+        rgba(183, 197, 214, 0.7) calc((var(--slot-height) * 2) - 1px),
+        rgba(183, 197, 214, 0.7) calc(var(--slot-height) * 2)
+      );
+      pointer-events: none;
+    }
+
+    .time-label {
+      position: absolute;
+      left: 0;
+      width: 100%;
+      transform: translateY(-50%);
+      padding-right: 12px;
+      text-align: right;
+      color: #5c738a;
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+
+    .time-label.major {
+      color: #35556e;
+      font-size: 0.86rem;
+    }
+
+    .class-card {
+      position: absolute;
+      left: 8px;
+      right: 8px;
+      border-radius: 16px;
+      padding: 10px 11px;
+      border: 1px solid rgba(17, 24, 39, 0.08);
+      border-top-width: 5px;
+      box-shadow: 0 10px 24px rgba(31, 41, 55, 0.10);
+      overflow: hidden;
+    }
+
+    .class-time {
+      display: block;
+      font-size: 0.75rem;
+      color: rgba(31, 41, 55, 0.72);
+      margin-bottom: 6px;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+    }
+
+    .class-name {
+      display: block;
+      font-weight: 800;
+      font-size: 0.94rem;
+      line-height: 1.2;
+      color: #1f2937;
+    }
+
+    .class-detail {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.56);
+      color: rgba(31, 41, 55, 0.76);
+      font-size: 0.76rem;
+      font-weight: 700;
+    }
+
+    .color-medidas {
+      background: linear-gradient(180deg, #ffffff 0%, #eef7ff 100%);
+      border-top-color: #2d8fd5;
+    }
+
+    .color-comunicaciones {
+      background: linear-gradient(180deg, #ffffff 0%, #eefaf3 100%);
+      border-top-color: #2e9d68;
+    }
+
+    .color-aplicada {
+      background: linear-gradient(180deg, #ffffff 0%, #eff4ff 100%);
+      border-top-color: #5f7df0;
+    }
+
+    .color-maquinas {
+      background: linear-gradient(180deg, #ffffff 0%, #fff9e8 100%);
+      border-top-color: #c79a1e;
+    }
+
+    .color-digitales {
+      background: linear-gradient(180deg, #ffffff 0%, #f6efff 100%);
+      border-top-color: #7e54c6;
+    }
+
+    .color-circuitos {
+      background: linear-gradient(180deg, #ffffff 0%, #edf6ff 100%);
+      border-top-color: #2f7fb2;
+    }
+
+    .tasks {
+      background: var(--panel);
+      border: 1px solid rgba(183, 197, 214, 0.7);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      padding: 24px;
+    }
+
+    .tasks-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .tasks-header p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      background: var(--panel);
+    }
+
+    th,
+    td {
+      border-bottom: 1px solid var(--line);
+      padding: 12px 14px;
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    th {
+      background: var(--panel-soft);
+      color: #35556e;
+      font-size: 0.84rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .amarillo {
+      background-color: #fff8b0;
+    }
+
+    .rojo {
+      background-color: #ffdddd;
+    }
+
+    .tachado {
+      text-decoration: line-through;
+      color: #7b8794;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      background: #fff;
+      color: var(--text);
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      border-radius: 999px;
+      padding: 10px 16px;
+      background: #2f7fb2;
+      color: #fff;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 140ms ease, box-shadow 140ms ease;
+      box-shadow: 0 8px 18px rgba(47, 127, 178, 0.22);
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 20px rgba(47, 127, 178, 0.28);
+    }
+
+    .delete-button {
+      padding: 8px 12px;
+      background: #e05a5a;
+      box-shadow: none;
+    }
+
+    @media (max-width: 760px) {
+      body {
+        padding: 16px;
+      }
+
+      .hero,
+      .tasks {
+        padding: 18px;
+      }
+
+      .schedule-toolbar,
+      .tasks-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .schedule-grid {
+        min-width: 820px;
+      }
+    }
   </style>
 </head>
 <body>
+  <div class="page">
+    <section class="hero">
+      <h2>Proxima clase</h2>
+      <div id="mensaje">Calculando...</div>
+    </section>
 
-  <h2>⏰ Próxima clase</h2>
-  <div id="mensaje">Calculando...</div>
+    <section class="schedule-shell">
+      <div class="schedule-toolbar">
+        <div>
+          <h2>Horario semanal</h2>
+          <p>Escala continua cada 15 minutos para leer mejor duraciones y separaciones reales.</p>
+        </div>
+      </div>
+      <div class="schedule-wrap">
+        <div id="scheduleGrid" class="schedule-grid"></div>
+      </div>
+    </section>
 
-  <h2>Horario UTN 2026</h2>
-  <table>
-    <tr>
-      <th>Hora</th>
-      <th>Lunes</th>
-      <th>Martes</th>
-      <th>Miércoles</th>
-      <th>Jueves</th>
-      <th>Viernes</th>
-      <th>Sábado</th>
-    </tr>
-    <tr>
-      <td>17:20-18:50</td>
-      <td class="ingles">Medidas Electrónicas I<br>(No inscripto)<br>4R1</td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>18:15-19:45</td>
-      <td></td>
-      <td class="asys">Máquinas e Instalaciones Eléctricas<br>(No inscripto)<br>4R1</td>
-      <td></td>
-      <td class="circuitos">Técnicas Digitales II<br>(No inscripto)<br>4R1</td>
-      <td class="aplicada">Teoría de los Circuitos II<br>(No inscripto)</td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>19:00-20:30</td>
-      <td class="dispo">Sistemas de Comunicaciones<br>(No inscripto)</td>
-      <td class="asys">Máquinas e Instalaciones Eléctricas<br>(No inscripto)<br>4R1</td>
-      <td class="seguridad">Electrónica Aplicada II<br>(No inscripto)<br>4R1</td>
-      <td class="circuitos">Técnicas Digitales II<br>(No inscripto)<br>4R1</td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>19:55-21:25</td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td class="dispo">Sistemas de Comunicaciones<br>(No inscripto)</td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>20:40-22:55</td>
-      <td class="seguridad">Electrónica Aplicada II<br>(No inscripto)<br>4R1</td>
-      <td></td>
-      <td class="aplicada">Teoría de los Circuitos II<br>(No inscripto)<br>4R1</td>
-      <td class="ingles">Medidas Electrónicas I<br>(No inscripto)<br>4R1</td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>21:35-23:05</td>
-      <td></td>
-      <td class="circuitos">Técnicas Digitales II<br>(No inscripto)<br>4R1</td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-    </tr>
-  </table>
+    <section class="tasks">
+      <div class="tasks-header">
+        <div>
+          <h2>Objetivos y entregas</h2>
+          <p>Seguimiento rapido de tareas pendientes.</p>
+        </div>
+        <button onclick="agregarFila()">Agregar nueva tarea</button>
+      </div>
 
-  <h2>📋 Objetivos y Entregas</h2>
-  <table id="tablaObjetivos">
-    <tr>
-      <th>Materia</th>
-      <th>Tarea</th>
-      <th>Fecha límite</th>
-      <th>Acciones</th>
-    </tr>
-  </table>
-  <br>
-  <button onclick="agregarFila()">➕ Agregar nueva tarea</button>
+      <div class="table-wrap">
+        <table id="tablaObjetivos">
+          <tr>
+            <th>Materia</th>
+            <th>Tarea</th>
+            <th>Fecha limite</th>
+            <th>Acciones</th>
+          </tr>
+        </table>
+      </div>
+    </section>
+  </div>
 
-<script src="horario.js"></script>
-<script>
-function mostrarRecordatorio() {
-  const ahora = new Date();
-  const diaSemana = ahora.getDay();
-  const horaActual = ahora.getHours();
-  const minutosActual = ahora.getMinutes();
-  const totalMinActual = horaActual * 60 + minutosActual;
+  <script src="horario.js"></script>
+  <script>
+    const diasSemana = [
+      { numero: 1, nombre: "Lunes", abreviado: "Lu" },
+      { numero: 2, nombre: "Martes", abreviado: "Ma" },
+      { numero: 3, nombre: "Miercoles", abreviado: "Mi" },
+      { numero: 4, nombre: "Jueves", abreviado: "Ju" },
+      { numero: 5, nombre: "Viernes", abreviado: "Vi" },
+      { numero: 6, nombre: "Sabado", abreviado: "Sa" }
+    ];
 
-  let mensaje = "No tenés clases dentro de una hora.";
-  let siguienteClase = null;
+    const intervalosMinutos = 15;
+    const pixelesPorIntervalo = 22;
 
-  for (const clase of horario) {
-    if (clase.dia === diaSemana) {
-      const [h, m] = clase.hora.split(":").map(Number);
-      const totalMinClase = h * 60 + m;
-      if (totalMinClase - totalMinActual <= 60 && totalMinClase - totalMinActual > 0) {
-        mensaje = `En menos de una hora tenés <strong>${clase.materia}</strong> a las ${clase.hora}.`;
-        document.getElementById("mensaje").innerHTML = mensaje;
-        return;
+    function horaAMinutos(hora) {
+      const [horas, minutos] = hora.split(":").map(Number);
+      return horas * 60 + minutos;
+    }
+
+    function minutosAHora(total) {
+      const horas = Math.floor(total / 60);
+      const minutos = total % 60;
+      return `${String(horas).padStart(2, "0")}:${String(minutos).padStart(2, "0")}`;
+    }
+
+    function redondearHaciaAbajo(valor, multiplo) {
+      return Math.floor(valor / multiplo) * multiplo;
+    }
+
+    function redondearHaciaArriba(valor, multiplo) {
+      return Math.ceil(valor / multiplo) * multiplo;
+    }
+
+    function construirHorario() {
+      const grid = document.getElementById("scheduleGrid");
+      const inicios = horario.map((clase) => horaAMinutos(clase.inicio));
+      const finales = horario.map((clase) => horaAMinutos(clase.fin));
+      const minMinutos = redondearHaciaAbajo(Math.min(...inicios), intervalosMinutos);
+      const maxMinutos = redondearHaciaArriba(Math.max(...finales), intervalosMinutos);
+      const totalIntervalos = (maxMinutos - minMinutos) / intervalosMinutos;
+      const altoTotal = totalIntervalos * pixelesPorIntervalo;
+
+      document.documentElement.style.setProperty("--slot-height", `${pixelesPorIntervalo}px`);
+
+      grid.innerHTML = "";
+
+      const corner = document.createElement("div");
+      corner.className = "corner";
+      corner.textContent = "Hora";
+      grid.appendChild(corner);
+
+      diasSemana.forEach((dia, index) => {
+        const header = document.createElement("div");
+        header.className = "day-header";
+        header.style.gridColumn = index + 2;
+        header.style.gridRow = 1;
+        header.innerHTML = `<span>${dia.nombre}</span><small>${dia.abreviado}</small>`;
+        grid.appendChild(header);
+      });
+
+      const timeColumn = document.createElement("div");
+      timeColumn.className = "time-column";
+      timeColumn.style.height = `${altoTotal}px`;
+
+      for (let minuto = minMinutos; minuto <= maxMinutos; minuto += intervalosMinutos) {
+        const label = document.createElement("div");
+        label.className = `time-label${minuto % 60 === 0 ? " major" : ""}`;
+        label.style.top = `${((minuto - minMinutos) / intervalosMinutos) * pixelesPorIntervalo}px`;
+        label.textContent = minutosAHora(minuto);
+        timeColumn.appendChild(label);
       }
-    }
-  }
 
-  const ahoraTotalMin = diaSemana * 1440 + totalMinActual;
-  let minDiferencia = Infinity;
-  for (const clase of horario) {
-    const [h, m] = clase.hora.split(":").map(Number);
-    const claseTotalMin = clase.dia * 1440 + (h * 60 + m);
-    const diferencia = claseTotalMin - ahoraTotalMin;
-    if (diferencia > 0 && diferencia < minDiferencia) {
-      minDiferencia = diferencia;
-      siguienteClase = clase;
-    }
-  }
+      grid.appendChild(timeColumn);
 
-  if (siguienteClase) {
-    const dias = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
-    const diaNombre = dias[siguienteClase.dia];
-    mensaje = `No tenés clases en la próxima hora.<br>Tu próxima clase es <strong>${siguienteClase.materia}</strong> el <strong>${diaNombre}</strong> a las <strong>${siguienteClase.hora}</strong>.`;
-  } else {
-    mensaje = "No tenés más clases programadas por ahora.";
-  }
+      diasSemana.forEach((dia, index) => {
+        const column = document.createElement("div");
+        column.className = "day-column";
+        column.style.gridColumn = index + 2;
+        column.style.height = `${altoTotal}px`;
 
-  document.getElementById("mensaje").innerHTML = mensaje;
-}
+        const clasesDelDia = horario.filter((clase) => clase.dia === dia.numero);
 
-mostrarRecordatorio();
-setInterval(mostrarRecordatorio, 60000);
+        clasesDelDia.forEach((clase) => {
+          const inicio = horaAMinutos(clase.inicio);
+          const fin = horaAMinutos(clase.fin);
+          const top = ((inicio - minMinutos) / intervalosMinutos) * pixelesPorIntervalo;
+          const height = ((fin - inicio) / intervalosMinutos) * pixelesPorIntervalo;
 
-let objetivos = JSON.parse(localStorage.getItem("objetivos")) || [];
+          const card = document.createElement("article");
+          card.className = `class-card color-${clase.color}`;
+          card.style.top = `${top}px`;
+          card.style.height = `${height}px`;
 
-function guardarObjetivos() {
-  localStorage.setItem("objetivos", JSON.stringify(objetivos));
-}
+          const detalle = clase.detalle ? `<span class="class-detail">${clase.detalle}</span>` : "";
+          card.innerHTML = `
+            <span class="class-time">${clase.inicio} - ${clase.fin}</span>
+            <span class="class-name">${clase.materia}</span>
+            ${detalle}
+          `;
 
-function agregarFila() {
-  objetivos.push({ materia: "", tarea: "", fecha: "" });
-  renderizarTabla();
-}
+          column.appendChild(card);
+        });
 
-function renderizarTabla() {
-  const tabla = document.getElementById("tablaObjetivos");
-  tabla.innerHTML = "<tr><th>Materia</th><th>Tarea</th><th>Fecha límite</th><th>Acciones</th></tr>";
-  const hoy = new Date();
-
-  objetivos.forEach((obj, index) => {
-    let estado = "";
-    if (obj.fecha) {
-      const fechaLimite = new Date(obj.fecha);
-      const diferencia = (fechaLimite - hoy) / (1000 * 3600 * 24);
-      if (diferencia <= 4 && diferencia > 2) estado = "amarillo";
-      else if (diferencia <= 2 && diferencia > 0) estado = "rojo";
-      else if (diferencia <= 0) estado = "tachado";
+        grid.appendChild(column);
+      });
     }
 
-    tabla.innerHTML += `
-      <tr class="${estado}">
-        <td><input value="${obj.materia}" onchange="editar(${index}, 'materia', this.value)"></td>
-        <td><input value="${obj.tarea}" onchange="editar(${index}, 'tarea', this.value)"></td>
-        <td><input type="date" value="${obj.fecha}" onchange="editar(${index}, 'fecha', this.value)"></td>
-        <td>
-          <button onclick="eliminar(${index})">🗑️</button>
-        </td>
-      </tr>
-    `;
-  });
+    function proximaClase() {
+      const ahora = new Date();
+      const diaActual = ahora.getDay();
+      const minutosActuales = ahora.getHours() * 60 + ahora.getMinutes();
+      const diasTexto = ["Domingo", "Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado"];
+      let mensaje = "No tenes clases dentro de la proxima hora.";
+      let mejorOpcion = null;
 
-  guardarObjetivos();
-}
+      for (const clase of horario) {
+        const inicio = horaAMinutos(clase.inicio);
+        const diasHasta = (clase.dia - diaActual + 7) % 7;
+        let diferencia = diasHasta * 1440 + (inicio - minutosActuales);
+        if (diferencia <= 0) {
+          diferencia += 7 * 1440;
+        }
 
-function editar(index, campo, valor) {
-  objetivos[index][campo] = valor;
-  renderizarTabla();
-}
+        if (diasHasta === 0 && inicio > minutosActuales && inicio - minutosActuales <= 60) {
+          mensaje = `En menos de una hora tenes <strong>${clase.materia}</strong> a las <strong>${clase.inicio}</strong>.`;
+          document.getElementById("mensaje").innerHTML = mensaje;
+          return;
+        }
 
-function eliminar(index) {
-  objetivos.splice(index, 1);
-  renderizarTabla();
-}
+        if (!mejorOpcion || diferencia < mejorOpcion.diferencia) {
+          mejorOpcion = { clase, diferencia };
+        }
+      }
 
-renderizarTabla();
-</script>
+      if (mejorOpcion) {
+        mensaje = `No tenes clases en la proxima hora.<br>Tu proxima clase es <strong>${mejorOpcion.clase.materia}</strong> el <strong>${diasTexto[mejorOpcion.clase.dia]}</strong> a las <strong>${mejorOpcion.clase.inicio}</strong>.`;
+      } else {
+        mensaje = "No hay clases cargadas.";
+      }
 
+      document.getElementById("mensaje").innerHTML = mensaje;
+    }
+
+    let objetivos = JSON.parse(localStorage.getItem("objetivos")) || [];
+
+    function guardarObjetivos() {
+      localStorage.setItem("objetivos", JSON.stringify(objetivos));
+    }
+
+    function agregarFila() {
+      objetivos.push({ materia: "", tarea: "", fecha: "" });
+      renderizarTabla();
+    }
+
+    function renderizarTabla() {
+      const tabla = document.getElementById("tablaObjetivos");
+      tabla.innerHTML = "<tr><th>Materia</th><th>Tarea</th><th>Fecha limite</th><th>Acciones</th></tr>";
+      const hoy = new Date();
+
+      objetivos.forEach((obj, index) => {
+        let estado = "";
+        if (obj.fecha) {
+          const fechaLimite = new Date(obj.fecha);
+          const diferencia = (fechaLimite - hoy) / (1000 * 3600 * 24);
+          if (diferencia <= 4 && diferencia > 2) estado = "amarillo";
+          else if (diferencia <= 2 && diferencia > 0) estado = "rojo";
+          else if (diferencia <= 0) estado = "tachado";
+        }
+
+        tabla.innerHTML += `
+          <tr class="${estado}">
+            <td><input value="${obj.materia}" onchange="editar(${index}, 'materia', this.value)"></td>
+            <td><input value="${obj.tarea}" onchange="editar(${index}, 'tarea', this.value)"></td>
+            <td><input type="date" value="${obj.fecha}" onchange="editar(${index}, 'fecha', this.value)"></td>
+            <td><button class="delete-button" onclick="eliminar(${index})">Eliminar</button></td>
+          </tr>
+        `;
+      });
+
+      guardarObjetivos();
+    }
+
+    function editar(index, campo, valor) {
+      objetivos[index][campo] = valor;
+      renderizarTabla();
+    }
+
+    function eliminar(index) {
+      objetivos.splice(index, 1);
+      renderizarTabla();
+    }
+
+    construirHorario();
+    proximaClase();
+    setInterval(proximaClase, 60000);
+    renderizarTabla();
+  </script>
 </body>
 </html>
