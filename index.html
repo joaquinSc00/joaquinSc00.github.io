@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Horario y Objetivos UTN 2025</title>
+  <title>Horario y Objetivos UTN 2026</title>
   <style>
     body { font-family: Arial, sans-serif; padding: 20px; background-color: #f9f9f9; }
     h2 { text-align: center; color: #2e7d32; margin-top: 40px; }
@@ -29,7 +29,7 @@
   <h2>⏰ Próxima clase</h2>
   <div id="mensaje">Calculando...</div>
 
-  <h2>Horario UTN 2025</h2>
+  <h2>Horario UTN 2026</h2>
   <table>
     <tr>
       <th>Hora</th>
@@ -38,13 +38,62 @@
       <th>Miércoles</th>
       <th>Jueves</th>
       <th>Viernes</th>
+      <th>Sábado</th>
     </tr>
-    <tr><td>13:15–14:45</td><td class="ingles">Inglés II<br>Aula 203 (3R1)</td><td></td><td></td><td></td><td></td></tr>
-    <tr><td>15:40–18:05</td><td></td><td></td><td class="asys">Análisis de Señales y Sistemas<br>Aula 205 (2R1)</td><td class="asys">Análisis de Señales y Sistemas<br>Aula 205 (2R1)</td><td></td></tr>
-    <tr><td>18:15–19:55</td><td></td><td class="dispo">Dispositivos Electrónicos<br>Lab Anexo<br>Prof. Sigampa</td><td class="circuitos">Teoría de los Circuitos I<br>Aula 707 (3R3)<br>Prof. Peluca</td><td class="aplicada">Electrónica Aplicada I<br>Aula 209<br>Prof. Rivas</td><td class="seguridad">Seguridad e Higiene<br>Aula 604 (4R2)</td></tr>
-    <tr><td>19:55–20:40</td><td></td><td class="circuitos">Teoría de los Circuitos I<br>Aula 707 (3R3)<br>Prof. Peluca</td><td></td><td></td><td class="dispo">Dispositivos Electrónicos<br>Aula 209<br>Prof. Guanuco</td></tr>
-    <tr><td>20:40–21:25</td><td></td><td class="circuitos">Teoría de los Circuitos I<br>Aula 707 (3R3)<br>Prof. Peluca</td><td class="aplicada">Electrónica Aplicada I<br>Lab<br>Prof. Gilberto</td><td></td><td class="dispo">Dispositivos Electrónicos<br>Aula 209<br>Prof. Guanuco</td></tr>
-    <tr><td>21:25–23:05</td><td></td><td></td><td class="aplicada">Electrónica Aplicada I<br>Lab<br>Prof. Gilberto</td><td></td><td class="dispo">Dispositivos Electrónicos<br>Aula 209<br>Prof. Guanuco</td></tr>
+    <tr>
+      <td>17:20-18:50</td>
+      <td class="ingles">Medidas Electrónicas I<br>(No inscripto)<br>4R1</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>18:15-19:45</td>
+      <td></td>
+      <td class="asys">Máquinas e Instalaciones Eléctricas<br>(No inscripto)<br>4R1</td>
+      <td></td>
+      <td class="circuitos">Técnicas Digitales II<br>(No inscripto)<br>4R1</td>
+      <td class="aplicada">Teoría de los Circuitos II<br>(No inscripto)</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>19:00-20:30</td>
+      <td class="dispo">Sistemas de Comunicaciones<br>(No inscripto)</td>
+      <td class="asys">Máquinas e Instalaciones Eléctricas<br>(No inscripto)<br>4R1</td>
+      <td class="seguridad">Electrónica Aplicada II<br>(No inscripto)<br>4R1</td>
+      <td class="circuitos">Técnicas Digitales II<br>(No inscripto)<br>4R1</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>19:55-21:25</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td class="dispo">Sistemas de Comunicaciones<br>(No inscripto)</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>20:40-22:55</td>
+      <td class="seguridad">Electrónica Aplicada II<br>(No inscripto)<br>4R1</td>
+      <td></td>
+      <td class="aplicada">Teoría de los Circuitos II<br>(No inscripto)<br>4R1</td>
+      <td class="ingles">Medidas Electrónicas I<br>(No inscripto)<br>4R1</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>21:35-23:05</td>
+      <td></td>
+      <td class="circuitos">Técnicas Digitales II<br>(No inscripto)<br>4R1</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
   </table>
 
   <h2>📋 Objetivos y Entregas</h2>
@@ -61,8 +110,6 @@
 
 <script src="horario.js"></script>
 <script>
-// Recordatorio de materias
-
 function mostrarRecordatorio() {
   const ahora = new Date();
   const diaSemana = ahora.getDay();
@@ -107,35 +154,36 @@ function mostrarRecordatorio() {
 
   document.getElementById("mensaje").innerHTML = mensaje;
 }
+
 mostrarRecordatorio();
 setInterval(mostrarRecordatorio, 60000);
 
-// Objetivos y entregas
-let objetivos = JSON.parse(localStorage.getItem('objetivos')) || [];
+let objetivos = JSON.parse(localStorage.getItem("objetivos")) || [];
 
 function guardarObjetivos() {
-  localStorage.setItem('objetivos', JSON.stringify(objetivos));
+  localStorage.setItem("objetivos", JSON.stringify(objetivos));
 }
 
 function agregarFila() {
-  objetivos.push({ materia: '', tarea: '', fecha: '' });
+  objetivos.push({ materia: "", tarea: "", fecha: "" });
   renderizarTabla();
 }
 
 function renderizarTabla() {
-  const tabla = document.getElementById('tablaObjetivos');
-  tabla.innerHTML = `<tr><th>Materia</th><th>Tarea</th><th>Fecha límite</th><th>Acciones</th></tr>`;
+  const tabla = document.getElementById("tablaObjetivos");
+  tabla.innerHTML = "<tr><th>Materia</th><th>Tarea</th><th>Fecha límite</th><th>Acciones</th></tr>";
   const hoy = new Date();
 
   objetivos.forEach((obj, index) => {
-    let estado = '';
+    let estado = "";
     if (obj.fecha) {
       const fechaLimite = new Date(obj.fecha);
       const diferencia = (fechaLimite - hoy) / (1000 * 3600 * 24);
-      if (diferencia <= 4 && diferencia > 2) estado = 'amarillo';
-      else if (diferencia <= 2 && diferencia > 0) estado = 'rojo';
-      else if (diferencia <= 0) estado = 'tachado';
+      if (diferencia <= 4 && diferencia > 2) estado = "amarillo";
+      else if (diferencia <= 2 && diferencia > 0) estado = "rojo";
+      else if (diferencia <= 0) estado = "tachado";
     }
+
     tabla.innerHTML += `
       <tr class="${estado}">
         <td><input value="${obj.materia}" onchange="editar(${index}, 'materia', this.value)"></td>
@@ -166,4 +214,3 @@ renderizarTabla();
 
 </body>
 </html>
-
