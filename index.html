@@ -6,32 +6,35 @@
   <title>Horario y Objetivos UTN 2026</title>
   <style>
     :root {
-      --bg: #eef3f8;
+      --bg: #eef4fa;
       --panel: #ffffff;
       --panel-soft: #f6f9fc;
-      --line: #d9e2ec;
-      --line-strong: #b7c5d6;
+      --line: #d7e2ee;
+      --line-strong: #bccddd;
       --text: #1f2937;
-      --muted: #62748a;
-      --accent: #2f7fb2;
-      --time-width: 88px;
-      --day-width: minmax(130px, 1fr);
-      --slot-height: 22px;
-      --header-height: 56px;
-      --radius: 18px;
-      --shadow: 0 16px 40px rgba(31, 41, 55, 0.08);
+      --muted: #64748b;
+      --brand: #2f7fb2;
+      --brand-dark: #1d608c;
+      --danger: #dd5a5a;
+      --time-width: 84px;
+      --day-width: minmax(132px, 1fr);
+      --slot-height: 24px;
+      --header-height: 58px;
+      --shadow: 0 18px 42px rgba(15, 23, 42, 0.08);
     }
 
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
 
     body {
       margin: 0;
       padding: 24px;
       font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      color: var(--text);
       background:
         radial-gradient(circle at top left, rgba(47, 127, 178, 0.12), transparent 28%),
         linear-gradient(180deg, #f8fbfe 0%, var(--bg) 100%);
-      color: var(--text);
     }
 
     .page {
@@ -40,59 +43,102 @@
     }
 
     h2 {
-      margin: 0 0 18px;
+      margin: 0;
       font-size: clamp(1.5rem, 2vw, 2rem);
-      color: #1e5f86;
-      letter-spacing: -0.02em;
+      letter-spacing: -0.03em;
+      color: var(--brand-dark);
+    }
+
+    p {
+      margin: 0;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid rgba(188, 205, 221, 0.8);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
     }
 
     .hero {
-      background: var(--panel);
-      border: 1px solid rgba(183, 197, 214, 0.6);
-      border-radius: 24px;
       padding: 24px;
-      box-shadow: var(--shadow);
       margin-bottom: 28px;
     }
 
+    .hero-title {
+      margin-bottom: 16px;
+    }
+
     #mensaje {
-      font-size: 1.1rem;
-      line-height: 1.5;
       padding: 18px 20px;
-      background: linear-gradient(135deg, #f7fbff 0%, #edf6fd 100%);
       border: 1px solid #cfe3f1;
       border-radius: 16px;
+      background: linear-gradient(135deg, #f7fbff 0%, #edf6fd 100%);
       color: #20435b;
+      font-size: 1.05rem;
+      line-height: 1.5;
+    }
+
+    .reminders-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      min-height: 56px;
+    }
+
+    .reminders-label {
+      flex: 0 0 auto;
+      font-size: 0.76rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--brand-dark);
+    }
+
+    #recordatorioRotativo {
+      color: #31465a;
+      line-height: 1.45;
+      min-height: 1.45em;
     }
 
     .schedule-shell {
-      background: var(--panel);
-      border: 1px solid rgba(183, 197, 214, 0.7);
-      border-radius: 24px;
-      box-shadow: var(--shadow);
       overflow: hidden;
-      margin-bottom: 32px;
+      margin-bottom: 28px;
     }
 
     .schedule-toolbar {
       display: flex;
       justify-content: space-between;
+      align-items: end;
       gap: 16px;
-      align-items: center;
-      padding: 20px 22px 14px;
-      border-bottom: 1px solid rgba(183, 197, 214, 0.55);
-      background: linear-gradient(180deg, #fbfdff 0%, #f4f8fb 100%);
+      padding: 22px 22px 14px;
+      border-bottom: 1px solid rgba(188, 205, 221, 0.7);
+      background: linear-gradient(180deg, #fcfdff 0%, #f4f8fb 100%);
     }
 
     .schedule-toolbar p {
-      margin: 0;
+      margin-top: 8px;
       color: var(--muted);
-      font-size: 0.96rem;
     }
 
     .schedule-wrap {
       overflow-x: auto;
       padding: 0 14px 18px;
+    }
+
+    .schedule-status {
+      display: none;
+      margin: 18px 8px 0;
+      padding: 14px 16px;
+      border-radius: 14px;
+      background: #fff8e8;
+      border: 1px solid #f1d89f;
+      color: #7c5c14;
     }
 
     .schedule-grid {
@@ -105,13 +151,13 @@
     .corner {
       grid-column: 1;
       grid-row: 1;
-      padding: 14px 10px;
+      padding: 16px 10px;
       background: #f1f6fb;
       border-right: 1px solid var(--line);
       border-bottom: 1px solid var(--line);
-      color: #50708a;
-      font-size: 0.82rem;
-      font-weight: 700;
+      color: #5a738a;
+      font-size: 0.8rem;
+      font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 0.08em;
     }
@@ -119,9 +165,9 @@
     .day-header {
       padding: 12px 10px 10px;
       text-align: center;
-      background: linear-gradient(180deg, #4d93bf 0%, #387ca9 100%);
       color: #fff;
-      border-right: 1px solid rgba(255, 255, 255, 0.16);
+      background: linear-gradient(180deg, #4d93bf 0%, #387ca9 100%);
+      border-right: 1px solid rgba(255, 255, 255, 0.18);
       border-bottom: 1px solid var(--line);
     }
 
@@ -129,47 +175,45 @@
       border-right: 0;
     }
 
-    .day-header span {
+    .day-header strong {
       display: block;
-      font-size: 1.5rem;
-      font-weight: 800;
-      letter-spacing: -0.02em;
+      font-size: 1.45rem;
+      letter-spacing: -0.03em;
     }
 
     .day-header small {
       display: block;
       margin-top: 2px;
       font-size: 0.74rem;
-      opacity: 0.9;
-      letter-spacing: 0.05em;
       text-transform: uppercase;
+      letter-spacing: 0.06em;
+      opacity: 0.92;
     }
 
     .time-column,
     .day-column {
       position: relative;
-      min-height: 100%;
     }
 
     .time-column {
       grid-column: 1;
       grid-row: 2;
-      background: linear-gradient(180deg, #fbfdff 0%, #f5f8fb 100%);
+      background: linear-gradient(180deg, #fbfdff 0%, #f6f9fc 100%);
       border-right: 1px solid var(--line);
     }
 
     .day-column {
       grid-row: 2;
+      border-right: 1px solid var(--line);
       background:
         linear-gradient(180deg, rgba(47, 127, 178, 0.03), rgba(47, 127, 178, 0.03)) top / 100% 100% no-repeat,
         repeating-linear-gradient(
           to bottom,
           transparent 0,
           transparent calc(var(--slot-height) - 1px),
-          rgba(217, 226, 236, 0.95) calc(var(--slot-height) - 1px),
-          rgba(217, 226, 236, 0.95) var(--slot-height)
+          rgba(215, 226, 238, 0.9) calc(var(--slot-height) - 1px),
+          rgba(215, 226, 238, 0.9) var(--slot-height)
         );
-      border-right: 1px solid var(--line);
     }
 
     .day-column:last-child {
@@ -184,8 +228,8 @@
         to bottom,
         transparent 0,
         transparent calc((var(--slot-height) * 2) - 1px),
-        rgba(183, 197, 214, 0.7) calc((var(--slot-height) * 2) - 1px),
-        rgba(183, 197, 214, 0.7) calc(var(--slot-height) * 2)
+        rgba(188, 205, 221, 0.75) calc((var(--slot-height) * 2) - 1px),
+        rgba(188, 205, 221, 0.75) calc(var(--slot-height) * 2)
       );
       pointer-events: none;
     }
@@ -195,11 +239,11 @@
       left: 0;
       width: 100%;
       transform: translateY(-50%);
-      padding-right: 12px;
+      padding-right: 10px;
       text-align: right;
-      color: #5c738a;
-      font-size: 0.82rem;
+      font-size: 0.8rem;
       font-weight: 700;
+      color: #5b7288;
     }
 
     .time-label.major {
@@ -211,39 +255,38 @@
       position: absolute;
       left: 8px;
       right: 8px;
-      border-radius: 16px;
       padding: 10px 11px;
-      border: 1px solid rgba(17, 24, 39, 0.08);
+      border-radius: 16px;
+      border: 1px solid rgba(15, 23, 42, 0.08);
       border-top-width: 5px;
-      box-shadow: 0 10px 24px rgba(31, 41, 55, 0.10);
+      box-shadow: 0 10px 22px rgba(15, 23, 42, 0.09);
       overflow: hidden;
     }
 
     .class-time {
       display: block;
-      font-size: 0.75rem;
-      color: rgba(31, 41, 55, 0.72);
-      margin-bottom: 6px;
+      margin-bottom: 5px;
+      font-size: 0.74rem;
       font-weight: 700;
-      letter-spacing: 0.01em;
+      color: rgba(31, 41, 55, 0.7);
     }
 
     .class-name {
       display: block;
+      font-size: 0.92rem;
       font-weight: 800;
-      font-size: 0.94rem;
-      line-height: 1.2;
+      line-height: 1.22;
       color: #1f2937;
     }
 
     .class-detail {
       display: inline-block;
-      margin-top: 8px;
+      margin-top: 7px;
       padding: 3px 8px;
       border-radius: 999px;
-      background: rgba(255, 255, 255, 0.56);
-      color: rgba(31, 41, 55, 0.76);
-      font-size: 0.76rem;
+      background: rgba(255, 255, 255, 0.6);
+      color: rgba(31, 41, 55, 0.75);
+      font-size: 0.74rem;
       font-weight: 700;
     }
 
@@ -278,10 +321,6 @@
     }
 
     .tasks {
-      background: var(--panel);
-      border: 1px solid rgba(183, 197, 214, 0.7);
-      border-radius: 24px;
-      box-shadow: var(--shadow);
       padding: 24px;
     }
 
@@ -294,7 +333,7 @@
     }
 
     .tasks-header p {
-      margin: 0;
+      margin-top: 8px;
       color: var(--muted);
     }
 
@@ -305,8 +344,8 @@
     }
 
     table {
-      border-collapse: collapse;
       width: 100%;
+      border-collapse: collapse;
       background: var(--panel);
     }
 
@@ -321,46 +360,90 @@
     th {
       background: var(--panel-soft);
       color: #35556e;
-      font-size: 0.84rem;
+      font-size: 0.82rem;
+      font-weight: 800;
       text-transform: uppercase;
-      letter-spacing: 0.06em;
+      letter-spacing: 0.07em;
     }
 
     tr:last-child td {
       border-bottom: 0;
     }
 
-    .amarillo {
-      background-color: #fff8b0;
+    .task-rank {
+      width: 42px;
+      text-align: center;
+      color: var(--brand-dark);
+      font-weight: 800;
     }
 
-    .rojo {
-      background-color: #ffdddd;
-    }
-
-    .tachado {
-      text-decoration: line-through;
-      color: #7b8794;
-    }
-
-    input {
+    .priority-select,
+    .task-input,
+    .date-input {
       width: 100%;
-      padding: 10px 12px;
       border: 1px solid #cbd5e1;
       border-radius: 10px;
       background: #fff;
       color: var(--text);
       font: inherit;
+      padding: 10px 12px;
+    }
+
+    .priority-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 84px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 0.76rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .priority-alta {
+      background: #ffe1e1;
+      color: #a23131;
+    }
+
+    .priority-media {
+      background: #fff2cf;
+      color: #946400;
+    }
+
+    .priority-baja {
+      background: #e2f3e8;
+      color: #236743;
+    }
+
+    .task-meta {
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    .task-overdue {
+      background: #fff1f1;
+    }
+
+    .task-soon {
+      background: #fff8df;
+    }
+
+    .delete-button {
+      padding: 9px 13px;
+      background: var(--danger);
+      box-shadow: none;
     }
 
     button {
       border: 0;
       border-radius: 999px;
       padding: 10px 16px;
-      background: #2f7fb2;
+      background: var(--brand);
       color: #fff;
       font: inherit;
-      font-weight: 700;
+      font-weight: 800;
       cursor: pointer;
       transition: transform 140ms ease, box-shadow 140ms ease;
       box-shadow: 0 8px 18px rgba(47, 127, 178, 0.22);
@@ -371,13 +454,7 @@
       box-shadow: 0 12px 20px rgba(47, 127, 178, 0.28);
     }
 
-    .delete-button {
-      padding: 8px 12px;
-      background: #e05a5a;
-      box-shadow: none;
-    }
-
-    @media (max-width: 760px) {
+    @media (max-width: 860px) {
       body {
         padding: 16px;
       }
@@ -387,52 +464,66 @@
         padding: 18px;
       }
 
+      .tasks-header,
       .schedule-toolbar,
-      .tasks-header {
-        flex-direction: column;
+      .reminders-bar {
         align-items: flex-start;
       }
 
+      .tasks-header,
+      .schedule-toolbar {
+        flex-direction: column;
+      }
+
       .schedule-grid {
-        min-width: 820px;
+        min-width: 840px;
       }
     }
   </style>
 </head>
 <body>
   <div class="page">
-    <section class="hero">
-      <h2>Proxima clase</h2>
+    <section class="panel hero">
+      <div class="hero-title">
+        <h2>Proxima clase</h2>
+      </div>
       <div id="mensaje">Calculando...</div>
+      <div class="reminders-bar">
+        <div class="reminders-label">Atencion</div>
+        <div id="recordatorioRotativo">Organizando recordatorios...</div>
+      </div>
     </section>
 
-    <section class="schedule-shell">
+    <section class="panel schedule-shell">
       <div class="schedule-toolbar">
         <div>
           <h2>Horario semanal</h2>
-          <p>Escala continua cada 15 minutos para leer mejor duraciones y separaciones reales.</p>
+          <p>Escala continua cada 15 minutos para ver duraciones reales y espacios cortos sin distorsion.</p>
         </div>
       </div>
+      <div id="scheduleStatus" class="schedule-status"></div>
       <div class="schedule-wrap">
         <div id="scheduleGrid" class="schedule-grid"></div>
       </div>
     </section>
 
-    <section class="tasks">
+    <section class="panel tasks">
       <div class="tasks-header">
         <div>
           <h2>Objetivos y entregas</h2>
-          <p>Seguimiento rapido de tareas pendientes.</p>
+          <p>Ordenado por que conviene atender primero, combinando fecha y prioridad.</p>
         </div>
-        <button onclick="agregarFila()">Agregar nueva tarea</button>
+        <button type="button" onclick="agregarFila()">Agregar nueva tarea</button>
       </div>
 
       <div class="table-wrap">
         <table id="tablaObjetivos">
           <tr>
-            <th>Materia</th>
+            <th>#</th>
+            <th>Contexto</th>
             <th>Tarea</th>
             <th>Fecha limite</th>
+            <th>Prioridad</th>
             <th>Acciones</th>
           </tr>
         </table>
@@ -451,12 +542,19 @@
       { numero: 6, nombre: "Sabado", abreviado: "Sa" }
     ];
 
+    const prioridadPeso = { alta: 3, media: 2, baja: 1 };
     const intervalosMinutos = 15;
-    const pixelesPorIntervalo = 22;
+    const pixelesPorIntervalo = 24;
+    const rotacionMs = 4500;
+
+    let objetivos = [];
+    let recordatorios = [];
+    let indiceRecordatorio = 0;
+    let intervaloRecordatorios = null;
 
     function horaAMinutos(hora) {
-      const [horas, minutos] = hora.split(":").map(Number);
-      return horas * 60 + minutos;
+      const [horas, minutos] = String(hora || "00:00").split(":").map(Number);
+      return (horas || 0) * 60 + (minutos || 0);
     }
 
     function minutosAHora(total) {
@@ -473,17 +571,213 @@
       return Math.ceil(valor / multiplo) * multiplo;
     }
 
+    function inicioDeHoy() {
+      const hoy = new Date();
+      hoy.setHours(0, 0, 0, 0);
+      return hoy;
+    }
+
+    function diasHasta(fecha) {
+      if (!fecha) return null;
+      const hoy = inicioDeHoy();
+      const objetivo = new Date(`${fecha}T00:00:00`);
+      if (Number.isNaN(objetivo.getTime())) return null;
+      return Math.round((objetivo - hoy) / 86400000);
+    }
+
+    function safeLoadObjetivos() {
+      try {
+        const raw = localStorage.getItem("objetivos");
+        if (!raw) return [];
+        const parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed)) return [];
+        return parsed.map((item) => ({
+          contexto: typeof item.contexto === "string" ? item.contexto : (typeof item.materia === "string" ? item.materia : ""),
+          tarea: typeof item.tarea === "string" ? item.tarea : "",
+          fecha: typeof item.fecha === "string" ? item.fecha : "",
+          prioridad: item.prioridad === "alta" || item.prioridad === "media" || item.prioridad === "baja" ? item.prioridad : "media"
+        }));
+      } catch (error) {
+        console.error("No se pudo leer objetivos desde localStorage:", error);
+        return [];
+      }
+    }
+
+    function guardarObjetivos() {
+      localStorage.setItem("objetivos", JSON.stringify(objetivos));
+    }
+
+    function descripcionPrioridad(prioridad) {
+      if (prioridad === "alta") return "Alta";
+      if (prioridad === "baja") return "Baja";
+      return "Media";
+    }
+
+    function puntajeObjetivo(objetivo) {
+      const prioridad = prioridadPeso[objetivo.prioridad] || 2;
+      const dias = diasHasta(objetivo.fecha);
+      let urgencia = 0;
+
+      if (dias === null) urgencia = 10;
+      else if (dias < 0) urgencia = 120;
+      else if (dias === 0) urgencia = 110;
+      else if (dias === 1) urgencia = 90;
+      else if (dias <= 3) urgencia = 75;
+      else if (dias <= 7) urgencia = 55;
+      else if (dias <= 14) urgencia = 35;
+      else urgencia = 20;
+
+      return urgencia + prioridad * 9;
+    }
+
+    function objetivosOrdenados() {
+      return [...objetivos].sort((a, b) => {
+        const score = puntajeObjetivo(b) - puntajeObjetivo(a);
+        if (score !== 0) return score;
+        const fechaA = diasHasta(a.fecha);
+        const fechaB = diasHasta(b.fecha);
+        if (fechaA === null && fechaB !== null) return 1;
+        if (fechaA !== null && fechaB === null) return -1;
+        if (fechaA !== null && fechaB !== null && fechaA !== fechaB) return fechaA - fechaB;
+        return a.tarea.localeCompare(b.tarea);
+      });
+    }
+
+    function estadoFila(objetivo) {
+      const dias = diasHasta(objetivo.fecha);
+      if (dias === null) return "";
+      if (dias < 0) return "task-overdue";
+      if (dias <= 3) return "task-soon";
+      return "";
+    }
+
+    function textoVencimiento(objetivo) {
+      const dias = diasHasta(objetivo.fecha);
+      if (dias === null) return "Sin fecha";
+      if (dias < 0) return `Vencida hace ${Math.abs(dias)} dia${Math.abs(dias) === 1 ? "" : "s"}`;
+      if (dias === 0) return "Vence hoy";
+      if (dias === 1) return "Vence manana";
+      return `Faltan ${dias} dias`;
+    }
+
+    function proximaClaseInfo() {
+      const ahora = new Date();
+      const diaActual = ahora.getDay();
+      const minutosActuales = ahora.getHours() * 60 + ahora.getMinutes();
+      let mejorOpcion = null;
+
+      for (const clase of horario) {
+        const inicio = horaAMinutos(clase.inicio);
+        const diasDiferencia = (clase.dia - diaActual + 7) % 7;
+        let minutosHasta = diasDiferencia * 1440 + (inicio - minutosActuales);
+        if (minutosHasta <= 0) minutosHasta += 7 * 1440;
+
+        if (!mejorOpcion || minutosHasta < mejorOpcion.minutosHasta) {
+          mejorOpcion = { clase, minutosHasta };
+        }
+      }
+
+      return mejorOpcion;
+    }
+
+    function renderProximaClase() {
+      const salida = document.getElementById("mensaje");
+      const proxima = proximaClaseInfo();
+      const diasTexto = ["Domingo", "Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado"];
+
+      if (!proxima) {
+        salida.innerHTML = "No hay clases cargadas.";
+        return;
+      }
+
+      if (proxima.minutosHasta <= 60) {
+        salida.innerHTML = `En menos de una hora tenes <strong>${proxima.clase.materia}</strong> a las <strong>${proxima.clase.inicio}</strong>.`;
+        return;
+      }
+
+      salida.innerHTML = `Tu proxima clase es <strong>${proxima.clase.materia}</strong> el <strong>${diasTexto[proxima.clase.dia]}</strong> a las <strong>${proxima.clase.inicio}</strong>.`;
+    }
+
+    function sugerenciasDeClases() {
+      const ahora = new Date();
+      const diaActual = ahora.getDay();
+      const minutosActuales = ahora.getHours() * 60 + ahora.getMinutes();
+
+      return horario.map((clase) => {
+        const inicio = horaAMinutos(clase.inicio);
+        const diasDiferencia = (clase.dia - diaActual + 7) % 7;
+        let minutosHasta = diasDiferencia * 1440 + (inicio - minutosActuales);
+        if (minutosHasta <= 0) minutosHasta += 7 * 1440;
+        return { clase, minutosHasta };
+      }).filter((item) => item.minutosHasta <= 3 * 1440)
+        .sort((a, b) => a.minutosHasta - b.minutosHasta)
+        .slice(0, 2)
+        .map((item) => {
+          const dias = Math.floor(item.minutosHasta / 1440);
+          if (dias === 0) return `Hoy conviene revisar ${item.clase.materia} antes de las ${item.clase.inicio}.`;
+          if (dias === 1) return `Manana conviene repasar ${item.clase.materia}.`;
+          return `Esta semana conviene adelantar ${item.clase.materia}.`;
+        });
+    }
+
+    function recordatoriosDeObjetivos() {
+      return objetivosOrdenados()
+        .filter((obj) => obj.tarea.trim())
+        .slice(0, 5)
+        .map((obj) => {
+          const dias = diasHasta(obj.fecha);
+          const prioridad = descripcionPrioridad(obj.prioridad).toLowerCase();
+          const nombre = obj.contexto ? `${obj.tarea} de ${obj.contexto}` : obj.tarea;
+
+          if (dias === null) return `Pendiente importante: ${nombre} (${prioridad}).`;
+          if (dias < 0) return `Atencion: ${nombre} ya esta vencida.`;
+          if (dias === 0) return `Hoy deberias cerrar ${nombre}.`;
+          if (dias === 1) return `Manana tenes que entregar ${nombre}.`;
+          return `En ${dias} dias debes entregar ${nombre}.`;
+        });
+    }
+
+    function actualizarRecordatorios() {
+      const base = [...recordatoriosDeObjetivos(), ...sugerenciasDeClases()];
+      recordatorios = base.length ? base : ["No hay alertas urgentes. Aprovecha para adelantar lo importante."];
+      indiceRecordatorio = 0;
+      renderRecordatorioActual();
+
+      if (intervaloRecordatorios) clearInterval(intervaloRecordatorios);
+      if (recordatorios.length > 1) {
+        intervaloRecordatorios = setInterval(() => {
+          indiceRecordatorio = (indiceRecordatorio + 1) % recordatorios.length;
+          renderRecordatorioActual();
+        }, rotacionMs);
+      }
+    }
+
+    function renderRecordatorioActual() {
+      const salida = document.getElementById("recordatorioRotativo");
+      salida.textContent = recordatorios[indiceRecordatorio] || "Sin recordatorios por ahora.";
+    }
+
     function construirHorario() {
       const grid = document.getElementById("scheduleGrid");
+      const status = document.getElementById("scheduleStatus");
+
+      if (!Array.isArray(horario) || horario.length === 0) {
+        grid.innerHTML = "";
+        status.style.display = "block";
+        status.textContent = "No hay clases cargadas para mostrar.";
+        return;
+      }
+
       const inicios = horario.map((clase) => horaAMinutos(clase.inicio));
       const finales = horario.map((clase) => horaAMinutos(clase.fin));
       const minMinutos = redondearHaciaAbajo(Math.min(...inicios), intervalosMinutos);
       const maxMinutos = redondearHaciaArriba(Math.max(...finales), intervalosMinutos);
       const totalIntervalos = (maxMinutos - minMinutos) / intervalosMinutos;
-      const altoTotal = totalIntervalos * pixelesPorIntervalo;
+      const altoTotal = Math.max(totalIntervalos * pixelesPorIntervalo, 240);
 
       document.documentElement.style.setProperty("--slot-height", `${pixelesPorIntervalo}px`);
-
+      status.style.display = "none";
+      status.textContent = "";
       grid.innerHTML = "";
 
       const corner = document.createElement("div");
@@ -496,7 +790,7 @@
         header.className = "day-header";
         header.style.gridColumn = index + 2;
         header.style.gridRow = 1;
-        header.innerHTML = `<span>${dia.nombre}</span><small>${dia.abreviado}</small>`;
+        header.innerHTML = `<strong>${dia.nombre}</strong><small>${dia.abreviado}</small>`;
         grid.appendChild(header);
       });
 
@@ -521,12 +815,11 @@
         column.style.height = `${altoTotal}px`;
 
         const clasesDelDia = horario.filter((clase) => clase.dia === dia.numero);
-
         clasesDelDia.forEach((clase) => {
           const inicio = horaAMinutos(clase.inicio);
           const fin = horaAMinutos(clase.fin);
           const top = ((inicio - minMinutos) / intervalosMinutos) * pixelesPorIntervalo;
-          const height = ((fin - inicio) / intervalosMinutos) * pixelesPorIntervalo;
+          const height = Math.max(((fin - inicio) / intervalosMinutos) * pixelesPorIntervalo, 42);
 
           const card = document.createElement("article");
           card.className = `class-card color-${clase.color}`;
@@ -547,95 +840,94 @@
       });
     }
 
-    function proximaClase() {
-      const ahora = new Date();
-      const diaActual = ahora.getDay();
-      const minutosActuales = ahora.getHours() * 60 + ahora.getMinutes();
-      const diasTexto = ["Domingo", "Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado"];
-      let mensaje = "No tenes clases dentro de la proxima hora.";
-      let mejorOpcion = null;
-
-      for (const clase of horario) {
-        const inicio = horaAMinutos(clase.inicio);
-        const diasHasta = (clase.dia - diaActual + 7) % 7;
-        let diferencia = diasHasta * 1440 + (inicio - minutosActuales);
-        if (diferencia <= 0) {
-          diferencia += 7 * 1440;
-        }
-
-        if (diasHasta === 0 && inicio > minutosActuales && inicio - minutosActuales <= 60) {
-          mensaje = `En menos de una hora tenes <strong>${clase.materia}</strong> a las <strong>${clase.inicio}</strong>.`;
-          document.getElementById("mensaje").innerHTML = mensaje;
-          return;
-        }
-
-        if (!mejorOpcion || diferencia < mejorOpcion.diferencia) {
-          mejorOpcion = { clase, diferencia };
-        }
-      }
-
-      if (mejorOpcion) {
-        mensaje = `No tenes clases en la proxima hora.<br>Tu proxima clase es <strong>${mejorOpcion.clase.materia}</strong> el <strong>${diasTexto[mejorOpcion.clase.dia]}</strong> a las <strong>${mejorOpcion.clase.inicio}</strong>.`;
-      } else {
-        mensaje = "No hay clases cargadas.";
-      }
-
-      document.getElementById("mensaje").innerHTML = mensaje;
-    }
-
-    let objetivos = JSON.parse(localStorage.getItem("objetivos")) || [];
-
-    function guardarObjetivos() {
-      localStorage.setItem("objetivos", JSON.stringify(objetivos));
-    }
-
     function agregarFila() {
-      objetivos.push({ materia: "", tarea: "", fecha: "" });
+      objetivos.push({ contexto: "", tarea: "", fecha: "", prioridad: "media" });
       renderizarTabla();
-    }
-
-    function renderizarTabla() {
-      const tabla = document.getElementById("tablaObjetivos");
-      tabla.innerHTML = "<tr><th>Materia</th><th>Tarea</th><th>Fecha limite</th><th>Acciones</th></tr>";
-      const hoy = new Date();
-
-      objetivos.forEach((obj, index) => {
-        let estado = "";
-        if (obj.fecha) {
-          const fechaLimite = new Date(obj.fecha);
-          const diferencia = (fechaLimite - hoy) / (1000 * 3600 * 24);
-          if (diferencia <= 4 && diferencia > 2) estado = "amarillo";
-          else if (diferencia <= 2 && diferencia > 0) estado = "rojo";
-          else if (diferencia <= 0) estado = "tachado";
-        }
-
-        tabla.innerHTML += `
-          <tr class="${estado}">
-            <td><input value="${obj.materia}" onchange="editar(${index}, 'materia', this.value)"></td>
-            <td><input value="${obj.tarea}" onchange="editar(${index}, 'tarea', this.value)"></td>
-            <td><input type="date" value="${obj.fecha}" onchange="editar(${index}, 'fecha', this.value)"></td>
-            <td><button class="delete-button" onclick="eliminar(${index})">Eliminar</button></td>
-          </tr>
-        `;
-      });
-
-      guardarObjetivos();
     }
 
     function editar(index, campo, valor) {
       objetivos[index][campo] = valor;
+      guardarObjetivos();
       renderizarTabla();
     }
 
     function eliminar(index) {
       objetivos.splice(index, 1);
+      guardarObjetivos();
       renderizarTabla();
     }
 
-    construirHorario();
-    proximaClase();
-    setInterval(proximaClase, 60000);
-    renderizarTabla();
+    function renderizarTabla() {
+      const tabla = document.getElementById("tablaObjetivos");
+      const ordenados = objetivosOrdenados();
+
+      tabla.innerHTML = `
+        <tr>
+          <th>#</th>
+          <th>Contexto</th>
+          <th>Tarea</th>
+          <th>Fecha limite</th>
+          <th>Prioridad</th>
+          <th>Acciones</th>
+        </tr>
+      `;
+
+      ordenados.forEach((obj, visualIndex) => {
+        const indexReal = objetivos.indexOf(obj);
+        const claseFila = estadoFila(obj);
+
+        tabla.innerHTML += `
+          <tr class="${claseFila}">
+            <td class="task-rank">${visualIndex + 1}</td>
+            <td>
+              <input class="task-input" value="${obj.contexto}" placeholder="Materia o contexto" onchange="editar(${indexReal}, 'contexto', this.value)">
+            </td>
+            <td>
+              <input class="task-input" value="${obj.tarea}" placeholder="Que hay que hacer" onchange="editar(${indexReal}, 'tarea', this.value)">
+              <div class="task-meta">${textoVencimiento(obj)}</div>
+            </td>
+            <td>
+              <input class="date-input" type="date" value="${obj.fecha}" onchange="editar(${indexReal}, 'fecha', this.value)">
+            </td>
+            <td>
+              <select class="priority-select" onchange="editar(${indexReal}, 'prioridad', this.value)">
+                <option value="alta" ${obj.prioridad === "alta" ? "selected" : ""}>Alta</option>
+                <option value="media" ${obj.prioridad === "media" ? "selected" : ""}>Media</option>
+                <option value="baja" ${obj.prioridad === "baja" ? "selected" : ""}>Baja</option>
+              </select>
+              <div class="priority-badge priority-${obj.prioridad}">${descripcionPrioridad(obj.prioridad)}</div>
+            </td>
+            <td>
+              <button class="delete-button" type="button" onclick="eliminar(${indexReal})">Eliminar</button>
+            </td>
+          </tr>
+        `;
+      });
+
+      guardarObjetivos();
+      actualizarRecordatorios();
+    }
+
+    function iniciar() {
+      objetivos = safeLoadObjetivos();
+      construirHorario();
+      renderProximaClase();
+      renderizarTabla();
+      setInterval(renderProximaClase, 60000);
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      try {
+        iniciar();
+      } catch (error) {
+        console.error("Error al iniciar la pagina:", error);
+        document.getElementById("mensaje").textContent = "Hubo un problema al cargar la pagina. Se intento recuperar la vista base.";
+        const status = document.getElementById("scheduleStatus");
+        status.style.display = "block";
+        status.textContent = "El horario no pudo renderizarse correctamente. Revisa la consola o refresca la pagina.";
+        document.getElementById("recordatorioRotativo").textContent = "Los recordatorios se reactivaran cuando la carga sea estable.";
+      }
+    });
   </script>
 </body>
 </html>
