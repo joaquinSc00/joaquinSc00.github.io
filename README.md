@@ -1,57 +1,80 @@
-# Organizacion academica con Firebase
+# Organizacion academica con Firebase y Google Tasks
 
 Este proyecto tiene dos piezas principales:
 
-- `index.html`: panel principal con horario, tareas manuales y tareas importadas.
-- `apps-script/google_tasks_sync.gs`: puente desde Google Tasks hacia Firebase Realtime Database.
+- `index.html`: panel principal con horario y tareas editables.
+- `apps-script/google_tasks_sync.gs`: puente bidireccional entre Google Tasks y Firebase Realtime Database.
 
-## Como funciona hoy
+## Modelo actual
 
-- La web guarda las tareas manuales en Firebase en `objetivos`.
-- Las tareas importadas desde Google Tasks viven aparte en `integraciones/googleTasks/objetivos`.
-- La pagina mezcla ambos origenes y los muestra juntos.
-- Las tareas importadas aparecen como solo lectura para no mezclar la edicion manual con la sincronizacion automatica.
+- Firebase usa una sola coleccion canonica: `objetivos`.
+- La web lee y edita directamente esa coleccion.
+- Google Tasks funciona como otra interfaz del mismo sistema, no como importacion aparte.
+- Cada tarea puede guardar:
+  - materia
+  - titulo
+  - comentarios
+  - fecha
+  - prioridad
+  - metadatos de sincronizacion con Google Tasks
 
-## Firebase
+## Web
 
-La web ya esta configurada con este Realtime Database:
+La web ahora:
 
-- `https://seguimiento-tps-default-rtdb.firebaseio.com`
-
-Si usas reglas abiertas para un proyecto personal, la web y Apps Script pueden leer y escribir sin una capa extra de autenticacion.
+- muestra todas las tareas como editables
+- usa un conjunto cerrado de materias
+- agrega un campo de `Comentarios`
+- guarda IDs estables para permitir sincronizacion bidireccional
+- marca visualmente si una tarea ya esta vinculada con Google Tasks
 
 ## Google Apps Script
 
 El archivo `apps-script/google_tasks_sync.gs` hace esto:
 
-- Lee todas tus listas de Google Tasks, o solo algunas si completas `TASK_LIST_IDS`.
-- Detecta tareas nuevas o modificadas usando un fingerprint persistido en `ScriptProperties`.
-- Evita reprocesar tareas sin cambios.
-- Borra en Firebase las tareas completadas o eliminadas en Google Tasks.
-- Parsea una primera version de `contexto`, `tarea`, `fecha` y `prioridad`.
-- Escribe el resultado en Firebase para que la web lo muestre.
+- trabaja sobre una sola lista objetivo de Google Tasks, por defecto `Facultad`
+- crea esa lista si no existe
+- lee Google Tasks y Firebase
+- detecta cambios con fingerprints persistidos en `ScriptProperties`
+- sincroniza en ambos sentidos con criterio simple de ultima edicion
+- elimina en Google Tasks si una tarea vinculada desaparece de Firebase
+- elimina en Firebase si una tarea de Google Tasks se completa o se borra
+- descarta tareas que no coincidan con una de las materias validas
+- usa `notes` de Google Tasks para guardar comentarios y un bloque minimo de metadata de sync
+
+### Materias validas
+
+Las materias admitidas son:
+
+- `Tecnicas Digitales II`
+- `Medidas Electronicas I`
+- `Teoria de los Circuitos II`
+- `Maquinas e Instalaciones Electricas`
+- `Sistemas de Comunicaciones`
+- `Electronica Aplicada II`
+- `Seguridad, Higiene y Medio Ambiente`
 
 ### Pasos sugeridos
 
 1. Abri tu proyecto de Apps Script.
 2. Pega el contenido de `apps-script/google_tasks_sync.gs`.
 3. Verifica que el servicio avanzado de Google Tasks este habilitado.
-4. Ejecuta `previewGoogleTasksParsing()` para ver como interpreta ejemplos reales.
+4. Ejecuta `previewGoogleTasksParsing()` para revisar como interpreta tus tareas reales.
 5. Ejecuta `syncGoogleTasksToFirebase()` una vez para autorizar y probar.
-6. Si te cierra el resultado, ejecuta `installGoogleTasksSyncTrigger()` para correrlo cada 15 minutos.
+6. Si el resultado te sirve, ejecuta `installGoogleTasksSyncTrigger()` para correrlo cada 15 minutos.
 
 ### Notas de diseno
 
-- El parseo es deliberadamente simple y extensible.
-- Las materias se detectan por palabras clave en el titulo y las notas.
-- Si una tarea tiene fecha `due` en Google Tasks, se usa esa primero.
-- Si no, intenta detectar fechas escritas como `2026-04-10`, `10/04`, `hoy`, `manana` o un dia de la semana.
-- Si no encuentra materia, usa la lista de Google Tasks o `Facultad`.
+- El parser prioriza tus materias reales y descarta lo que no entre en ese contexto.
+- Los comentarios de la web se sincronizan con `notes` de Google Tasks.
+- La metadata de sync viaja al final de `notes` entre marcadores para mantener el vinculo estable.
+- Si editas una tarea desde la web, el cambio se empuja a Google Tasks en la siguiente corrida del script.
+- Si editas una tarea en Google Tasks, el cambio baja a Firebase y se refleja en la web.
 
-## Publicacion
+## Firebase
 
-Para publicar la web con GitHub Pages:
+La base usada por la web y Apps Script es:
 
-1. Sube estos archivos a tu repo.
-2. Activa GitHub Pages en `Settings > Pages`.
-3. Abre tu URL publicada y verifica que las tareas aparezcan desde Firebase.
+- `https://seguimiento-tps-default-rtdb.firebaseio.com`
+
+Para un uso personal simple, podes trabajar con reglas abiertas o relajadas mientras haces pruebas.
