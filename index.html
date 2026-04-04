@@ -549,6 +549,7 @@
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
     const objetivosRef = database.ref("objetivos");
+    const objetivosImportadosRef = database.ref("integraciones/googleTasks/objetivos");
 
     const diasSemana = [
       { numero: 1, nombre: "Lunes", abreviado: "Lu" },
@@ -565,6 +566,8 @@
     const rotacionMs = 4500;
 
     let objetivos = [];
+    let objetivosManuales = [];
+    let objetivosImportados = [];
     let recordatorios = [];
     let indiceRecordatorio = 0;
     let intervaloRecordatorios = null;
@@ -604,15 +607,25 @@
       return Math.round((objetivo - hoy) / 86400000);
     }
 
-    function normalizarObjetivos(data) {
+    function normalizarObjetivos(data, opciones = {}) {
+      const origenPredeterminado = opciones.origen || "manual";
+      const editablePredeterminado = opciones.editable !== false;
+
       try {
         const parsed = typeof data === "string" ? JSON.parse(data) : data;
-        if (!Array.isArray(parsed)) return [];
-        return parsed.map((item) => ({
+        const items = Array.isArray(parsed)
+          ? parsed
+          : (parsed && typeof parsed === "object" ? Object.values(parsed) : []);
+
+        return items.map((item) => ({
           contexto: typeof item.contexto === "string" ? item.contexto : (typeof item.materia === "string" ? item.materia : ""),
           tarea: typeof item.tarea === "string" ? item.tarea : "",
           fecha: typeof item.fecha === "string" ? item.fecha : "",
-          prioridad: item.prioridad === "alta" || item.prioridad === "media" || item.prioridad === "baja" ? item.prioridad : "media"
+          prioridad: item.prioridad === "alta" || item.prioridad === "media" || item.prioridad === "baja" ? item.prioridad : "media",
+          origen: typeof item.origen === "string" ? item.origen : origenPredeterminado,
+          editable: typeof item.editable === "boolean" ? item.editable : editablePredeterminado,
+          fuenteId: typeof item.fuenteId === "string" ? item.fuenteId : "",
+          origenDetalle: typeof item.origenDetalle === "string" ? item.origenDetalle : ""
         }));
       } catch (error) {
         console.error("No se pudieron normalizar los objetivos:", error);
@@ -632,7 +645,20 @@
     }
 
     function guardarObjetivos() {
-      return objetivosRef.set(objetivos);
+      return objetivosRef.set(objetivosManuales);
+    }
+
+    function sincronizarVistaObjetivos() {
+      objetivos = [...objetivosManuales, ...objetivosImportados];
+    }
+
+    function escaparHtml(texto) {
+      return String(texto ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
     }
 
     function descripcionPrioridad(prioridad) {
@@ -869,7 +895,8 @@
     }
 
     function agregarFila() {
-      objetivos.push({ contexto: "", tarea: "", fecha: "", prioridad: "media" });
+      objetivosManuales.push({ contexto: "", tarea: "", fecha: "", prioridad: "media", origen: "manual", editable: true });
+      sincronizarVistaObjetivos();
       renderizarTabla();
       guardarObjetivos().catch((error) => {
         console.error("No se pudo guardar la nueva tarea:", error);
@@ -877,7 +904,8 @@
     }
 
     function editar(index, campo, valor) {
-      objetivos[index][campo] = valor;
+      objetivosManuales[index][campo] = valor;
+      sincronizarVistaObjetivos();
       renderizarTabla();
       guardarObjetivos().catch((error) => {
         console.error("No se pudo actualizar la tarea:", error);
@@ -885,7 +913,8 @@
     }
 
     function eliminar(index) {
-      objetivos.splice(index, 1);
+      objetivosManuales.splice(index, 1);
+      sincronizarVistaObjetivos();
       renderizarTabla();
       guardarObjetivos().catch((error) => {
         console.error("No se pudo eliminar la tarea:", error);
@@ -908,21 +937,57 @@
       `;
 
       ordenados.forEach((obj, visualIndex) => {
-        const indexReal = objetivos.indexOf(obj);
+        const esImportada = obj.editable === false || obj.origen === "google_tasks";
+        const indexReal = esImportada ? -1 : objetivosManuales.indexOf(obj);
         const claseFila = estadoFila(obj);
+        const contexto = obj.contexto || (esImportada ? "Google Tasks" : "");
+        const detalleOrigen = obj.origenDetalle || (esImportada ? "Importada por voz" : "");
+        const metaExtra = esImportada ? `<div class="task-meta">${detalleOrigen}</div>` : "";
+        const contextoSeguro = escaparHtml(contexto);
+        const tareaSegura = escaparHtml(obj.tarea || "");
+        const fechaSegura = escaparHtml(obj.fecha || "");
+        const detalleOrigenSeguro = escaparHtml(detalleOrigen);
+        const vencimientoSeguro = escaparHtml(textoVencimiento(obj));
+        const metaExtraSeguro = esImportada ? `<div class="task-meta">${detalleOrigenSeguro}</div>` : "";
+
+        if (esImportada) {
+          tabla.innerHTML += `
+            <tr class="${claseFila}">
+              <td class="task-rank">${visualIndex + 1}</td>
+              <td>
+                <div class="task-input">${contextoSeguro}</div>
+              </td>
+              <td>
+                <div class="task-input">${tareaSegura || "Sin descripcion"}</div>
+                <div class="task-meta">${vencimientoSeguro}</div>
+                ${metaExtraSeguro}
+              </td>
+              <td>
+                <div class="task-input">${fechaSegura || "Sin fecha"}</div>
+              </td>
+              <td>
+                <div class="priority-badge priority-${obj.prioridad}">${descripcionPrioridad(obj.prioridad)}</div>
+              </td>
+              <td>
+                <button class="delete-button" type="button" disabled>Solo lectura</button>
+              </td>
+            </tr>
+          `;
+          return;
+        }
 
         tabla.innerHTML += `
           <tr class="${claseFila}">
             <td class="task-rank">${visualIndex + 1}</td>
             <td>
-              <input class="task-input" value="${obj.contexto}" placeholder="Materia o contexto" onchange="editar(${indexReal}, 'contexto', this.value)">
+              <input class="task-input" value="${contextoSeguro}" placeholder="Materia o contexto" onchange="editar(${indexReal}, 'contexto', this.value)">
             </td>
             <td>
-              <input class="task-input" value="${obj.tarea}" placeholder="Que hay que hacer" onchange="editar(${indexReal}, 'tarea', this.value)">
-              <div class="task-meta">${textoVencimiento(obj)}</div>
+              <input class="task-input" value="${tareaSegura}" placeholder="Que hay que hacer" onchange="editar(${indexReal}, 'tarea', this.value)">
+              <div class="task-meta">${vencimientoSeguro}</div>
             </td>
             <td>
-              <input class="date-input" type="date" value="${obj.fecha}" onchange="editar(${indexReal}, 'fecha', this.value)">
+              <input class="date-input" type="date" value="${fechaSegura}" onchange="editar(${indexReal}, 'fecha', this.value)">
             </td>
             <td>
               <select class="priority-select" onchange="editar(${indexReal}, 'prioridad', this.value)">
@@ -959,7 +1024,8 @@
           if (datos === null) {
             const objetivosLocales = cargarObjetivosLocales();
             if (objetivosLocales.length > 0) {
-              objetivos = objetivosLocales;
+              objetivosManuales = normalizarObjetivos(objetivosLocales, { origen: "manual", editable: true });
+              sincronizarVistaObjetivos();
               renderizarTabla();
               guardarObjetivos().catch((error) => {
                 console.error("No se pudieron migrar los objetivos locales a Firebase:", error);
@@ -968,11 +1034,21 @@
             }
           }
 
-          objetivos = normalizarObjetivos(datos);
+          objetivosManuales = normalizarObjetivos(datos, { origen: "manual", editable: true });
+          sincronizarVistaObjetivos();
           renderizarTabla();
         }, (error) => {
           console.error("No se pudo sincronizar con Firebase:", error);
           document.getElementById("recordatorioRotativo").textContent = "No se pudo sincronizar las tareas en este momento.";
+        });
+
+        objetivosImportadosRef.on("value", (snapshot) => {
+          const datos = snapshot.val();
+          objetivosImportados = normalizarObjetivos(datos, { origen: "google_tasks", editable: false });
+          sincronizarVistaObjetivos();
+          renderizarTabla();
+        }, (error) => {
+          console.error("No se pudo sincronizar Google Tasks desde Firebase:", error);
         });
       }
     }
