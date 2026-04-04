@@ -10,14 +10,106 @@ const CONFIG = {
 };
 
 const SUBJECT_RULES = [
-  { contexto: 'Matematica', keywords: ['matematica', 'analisis', 'algebra', 'calculo'] },
-  { contexto: 'Fisica', keywords: ['fisica'] },
-  { contexto: 'Programacion', keywords: ['programacion', 'prog', 'algoritmos', 'codigo'] },
-  { contexto: 'Sistemas', keywords: ['sistemas'] },
-  { contexto: 'Arquitectura', keywords: ['arquitectura'] },
-  { contexto: 'Ingles', keywords: ['ingles'] },
-  { contexto: 'Quimica', keywords: ['quimica'] },
-  { contexto: 'Base de Datos', keywords: ['base de datos', 'bd', 'sql'] }
+  {
+    contexto: 'Electronica Aplicada II',
+    aliases: [
+      'electronica aplicada ii',
+      'electronica aplicada 2',
+      'electronica aplicada',
+      'aplicada ii',
+      'aplicada 2',
+      'aplicada',
+      'electronica',
+      'ea2'
+    ]
+  },
+  {
+    contexto: 'Medidas Electronicas I',
+    aliases: [
+      'medidas electronicas i',
+      'medidas electronicas 1',
+      'medidas electronicas',
+      'medidas',
+      'me1'
+    ]
+  },
+  {
+    contexto: 'Teoria de los Circuitos II',
+    aliases: [
+      'teoria de los circuitos ii',
+      'teoria de los circuitos 2',
+      'teoria de circuitos ii',
+      'teoria de circuitos 2',
+      'teoria de circuitos',
+      'circuitos ii',
+      'circuitos 2',
+      'circuitos',
+      'teoria ii',
+      'teoria 2',
+      'teoria',
+      'tc2'
+    ]
+  },
+  {
+    contexto: 'Maquinas e Instalaciones Electricas',
+    aliases: [
+      'maquinas e instalaciones electricas',
+      'maquinas e instalaciones',
+      'instalaciones electricas',
+      'maquinas electricas',
+      'maquinas',
+      'instalaciones',
+      'mie'
+    ]
+  },
+  {
+    contexto: 'Sistemas de Comunicaciones',
+    aliases: [
+      'sistemas de comunicaciones',
+      'sistemas comunicaciones',
+      'comunicaciones',
+      'sistemas',
+      'sc'
+    ]
+  },
+  {
+    contexto: 'Tecnicas Digitales II',
+    aliases: [
+      'tecnicas digitales ii',
+      'tecnicas digitales 2',
+      'tecnicas digitales',
+      'digitales ii',
+      'digitales 2',
+      'digitales',
+      'td2'
+    ]
+  },
+  {
+    contexto: 'Seguridad, Higiene y Medio Ambiente',
+    aliases: [
+      'seguridad higiene y medio ambiente',
+      'seguridad e higiene',
+      'seguridad y higiene',
+      'medio ambiente',
+      'higiene',
+      'seguridad',
+      'shma'
+    ]
+  }
+];
+
+const TASK_TYPE_RULES = [
+  { tipo: 'trabajo practico', aliases: ['trabajo practico', 'trabajo práctico', 'tp'] },
+  { tipo: 'parcial', aliases: ['parcial'] },
+  { tipo: 'evaluacion', aliases: ['evaluacion', 'evaluación'] },
+  { tipo: 'final', aliases: ['final'] },
+  { tipo: 'informe', aliases: ['informe'] },
+  { tipo: 'guia', aliases: ['guia', 'guía'] },
+  { tipo: 'entrega', aliases: ['entrega', 'entregar'] },
+  { tipo: 'coloquio', aliases: ['coloquio'] },
+  { tipo: 'laboratorio', aliases: ['laboratorio', 'labo', 'lab'] },
+  { tipo: 'exposicion', aliases: ['exposicion', 'exposición'] },
+  { tipo: 'defensa', aliases: ['defensa'] }
 ];
 
 function syncGoogleTasksToFirebase() {
@@ -253,7 +345,9 @@ function getTasksFromList_(taskListId) {
 
 function parseGoogleTask_(task, lista) {
   const text = [task.title || '', task.notes || ''].join(' ').trim();
-  const contexto = detectContext_(text) || lista.title || CONFIG.DEFAULT_CONTEXT;
+  const subjectMatch = detectContext_(text, lista);
+  const taskType = detectTaskType_(text);
+  const contexto = subjectMatch.contexto || lista.title || CONFIG.DEFAULT_CONTEXT;
   const prioridad = detectPriority_(text);
   const fecha = detectDate_(task, text);
 
@@ -268,26 +362,115 @@ function parseGoogleTask_(task, lista) {
     origenDetalle: 'Google Tasks',
     listaId: lista.id,
     listaNombre: lista.title || '',
+    materiaDetectadaPor: subjectMatch.alias || '',
+    tipoActividad: taskType.tipo || '',
+    tipoActividadAlias: taskType.alias || '',
     taskUpdated: task.updated || '',
     taskStatus: task.status || 'needsAction',
     textoOriginal: text
   };
 }
 
-function detectContext_(text) {
+function detectContext_(text, lista) {
   const normalized = normalizeText_(text);
-  for (let i = 0; i < SUBJECT_RULES.length; i += 1) {
-    const rule = SUBJECT_RULES[i];
-    const found = rule.keywords.some(function(keyword) {
-      return normalized.indexOf(normalizeText_(keyword)) !== -1;
-    });
-    if (found) return rule.contexto;
+  const candidates = buildSubjectCandidates_(normalized, lista);
+  if (candidates.length > 0) return candidates[0];
+
+  const taskType = detectTaskType_(text);
+  if (taskType.tipo) {
+    return {
+      contexto: lista && lista.title ? lista.title : CONFIG.DEFAULT_CONTEXT,
+      alias: taskType.alias,
+      score: 0
+    };
   }
 
-  const tpMatch = normalized.match(/\b(tp|trabajo practico|parcial|final|guia|entrega)\b/);
-  if (tpMatch) return CONFIG.DEFAULT_CONTEXT;
+  return { contexto: '', alias: '', score: 0 };
+}
 
-  return '';
+function buildSubjectCandidates_(normalizedText, lista) {
+  const candidates = [];
+
+  for (let i = 0; i < SUBJECT_RULES.length; i += 1) {
+    const rule = SUBJECT_RULES[i];
+    for (let j = 0; j < rule.aliases.length; j += 1) {
+      const alias = normalizeText_(rule.aliases[j]);
+      if (!containsAlias_(normalizedText, alias)) continue;
+
+      candidates.push({
+        contexto: rule.contexto,
+        alias: alias,
+        score: buildAliasScore_(alias, normalizedText, lista)
+      });
+    }
+  }
+
+  candidates.sort(function(a, b) {
+    if (b.score !== a.score) return b.score - a.score;
+    if (b.alias.length !== a.alias.length) return b.alias.length - a.alias.length;
+    return a.contexto.localeCompare(b.contexto);
+  });
+
+  return dedupeSubjectCandidates_(candidates);
+}
+
+function dedupeSubjectCandidates_(candidates) {
+  const seen = {};
+  return candidates.filter(function(candidate) {
+    if (seen[candidate.contexto]) return false;
+    seen[candidate.contexto] = true;
+    return true;
+  });
+}
+
+function containsAlias_(normalizedText, alias) {
+  const escaped = alias.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const regex = new RegExp('(^|\\W)' + escaped + '(\\W|$)');
+  return regex.test(normalizedText);
+}
+
+function buildAliasScore_(alias, normalizedText, lista) {
+  let score = alias.length;
+
+  if (/\b(ii|2|i|1)\b/.test(alias)) score += 5;
+  if (alias.indexOf(' ') !== -1) score += 3;
+  if (lista && lista.title) {
+    const normalizedList = normalizeText_(lista.title);
+    if (normalizedList.indexOf(alias) !== -1) score += 2;
+  }
+
+  if (normalizedText.indexOf(alias) === 0) score += 1;
+  return score;
+}
+
+function detectTaskType_(text) {
+  const normalized = normalizeText_(text);
+
+  for (let i = 0; i < TASK_TYPE_RULES.length; i += 1) {
+    const rule = TASK_TYPE_RULES[i];
+    for (let j = 0; j < rule.aliases.length; j += 1) {
+      const alias = normalizeText_(rule.aliases[j]);
+      if (containsAlias_(normalized, alias)) {
+        return {
+          tipo: rule.tipo,
+          alias: alias
+        };
+      }
+    }
+  }
+
+  const numberedTp = normalized.match(/\btp\s*\d+\b/);
+  if (numberedTp) {
+    return {
+      tipo: 'trabajo practico',
+      alias: numberedTp[0]
+    };
+  }
+
+  return {
+    tipo: '',
+    alias: ''
+  };
 }
 
 function detectPriority_(text) {
