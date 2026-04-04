@@ -32,8 +32,8 @@ La web ahora:
 
 El archivo `apps-script/google_tasks_sync.gs` hace esto:
 
-- trabaja sobre una sola lista objetivo de Google Tasks, por defecto `Facultad`
-- crea esa lista si no existe
+- toma como inbox la lista real donde cae la captura, por defecto `Mis tareas`
+- no crea listas artificiales para que el sistema funcione
 - lee Google Tasks y Firebase
 - detecta cambios con fingerprints persistidos en `ScriptProperties`
 - sincroniza en ambos sentidos con criterio simple de ultima edicion
@@ -66,6 +66,8 @@ Las materias admitidas son:
 ### Notas de diseno
 
 - El parser prioriza tus materias reales y descarta lo que no entre en ese contexto.
+- La lista de entrada puede fijarse por ID o por nombre si algun dia queres cambiarla.
+- Si no encuentra `Mis tareas`, usa la primera lista disponible como mejor inferencia del inbox real y lo deja registrado en logs.
 - Los comentarios de la web se sincronizan con `notes` de Google Tasks.
 - La metadata de sync viaja al final de `notes` entre marcadores para mantener el vinculo estable.
 - Si editas una tarea desde la web, el cambio se empuja a Google Tasks en la siguiente corrida del script.
