@@ -2,8 +2,8 @@ const CONFIG = {
   FIREBASE_DB_URL: 'https://seguimiento-tps-default-rtdb.firebaseio.com',
   FIREBASE_TASKS_PATH: '/objetivos',
   FIREBASE_STATE_PATH: '/integraciones/googleTasksSync/estado',
-  TARGET_TASK_LIST_ID: '',
-  TARGET_TASK_LIST_NAME: 'Facultad',
+  INBOX_TASK_LIST_ID: '',
+  INBOX_TASK_LIST_NAME: 'Mis tareas',
   DEFAULT_PRIORITY: 'media',
   DELETE_COMPLETED_IN_FIREBASE: true,
   LOG_PREFIX: '[GoogleTasksSync]',
@@ -78,7 +78,7 @@ function syncGoogleTasksToFirebase() {
   };
 
   try {
-    const taskList = getTargetTaskList_();
+    const taskList = getInboxTaskList_();
     const firebaseTasks = loadFirebaseTasks_();
     const googleTasks = getTasksFromList_(taskList.id);
     const googleById = {};
@@ -288,7 +288,7 @@ function resetGoogleTasksSyncState() {
 }
 
 function previewGoogleTasksParsing() {
-  const taskList = getTargetTaskList_();
+  const taskList = getInboxTaskList_();
   const preview = getTasksFromList_(taskList.id).slice(0, 10).map(function(task) {
     return {
       title: task.title,
@@ -333,24 +333,38 @@ function saveSyncState(state) {
   PropertiesService.getScriptProperties().setProperty(CONFIG.STATE_PROPERTY, JSON.stringify(state));
 }
 
-function getTargetTaskList_() {
-  if (CONFIG.TARGET_TASK_LIST_ID) {
-    const byId = Tasks.Tasklists.get(CONFIG.TARGET_TASK_LIST_ID);
+function getInboxTaskList_() {
+  if (CONFIG.INBOX_TASK_LIST_ID) {
+    const byId = Tasks.Tasklists.get(CONFIG.INBOX_TASK_LIST_ID);
     return { id: byId.id, title: byId.title };
   }
 
+  const allLists = [];
   let pageToken = null;
   do {
     const response = Tasks.Tasklists.list({ maxResults: 100, pageToken: pageToken });
-    const found = (response.items || []).find(function(item) {
-      return normalizeText_(item.title) === normalizeText_(CONFIG.TARGET_TASK_LIST_NAME);
+    (response.items || []).forEach(function(item) {
+      allLists.push(item);
     });
-    if (found) return { id: found.id, title: found.title };
     pageToken = response.nextPageToken || null;
   } while (pageToken);
 
-  const created = Tasks.Tasklists.insert({ title: CONFIG.TARGET_TASK_LIST_NAME });
-  return { id: created.id, title: created.title };
+  const byName = allLists.find(function(item) {
+    return normalizeText_(item.title) === normalizeText_(CONFIG.INBOX_TASK_LIST_NAME);
+  });
+  if (byName) return { id: byName.id, title: byName.title };
+
+  if (allLists.length > 0) {
+    const inferred = allLists[0];
+    log('No se encontro la lista configurada; se usa la primera lista disponible como inbox', {
+      requestedName: CONFIG.INBOX_TASK_LIST_NAME,
+      selectedId: inferred.id,
+      selectedTitle: inferred.title
+    });
+    return { id: inferred.id, title: inferred.title };
+  }
+
+  throw new Error('No se encontro ninguna lista de Google Tasks para usar como inbox.');
 }
 
 function getTasksFromList_(taskListId) {
