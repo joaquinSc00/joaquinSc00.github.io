@@ -73,6 +73,10 @@ Las materias admitidas son:
   - busca una tarea por texto y devuelve el objeto completo, el parseo y el desglose de `notes`
 - `listInboxTaskFieldMap(20)`
   - arma un mapa de campos presentes para ver rapidamente que propiedades aparecen en tus tareas reales
+- `debugInboxHumanView(10)`
+  - escribe en el registro una vista mas legible, tarea por tarea, con `title`, `notes`, `due`, `status`, `updated`, metadata y parseo
+- `inspectLatestAcademicTask()`
+  - busca la primera tarea que el parser considera academica y vuelca el JSON completo en bloques legibles
 
 ### Notas de diseno
 
@@ -81,6 +85,7 @@ Las materias admitidas son:
 - Si no encuentra `Mis tareas`, usa la primera lista disponible como mejor inferencia del inbox real y lo deja registrado en logs.
 - Los comentarios de la web se sincronizan con `notes` de Google Tasks.
 - Si Google Assistant realmente guarda una "descripcion", estas funciones te van a mostrar en que campo cae.
+- Para ver mejor el contenido en Apps Script, conviene abrir `Registro de ejecucion` y usar `debugInboxHumanView(10)` o `inspectInboxTaskByQuery("texto")`, porque ahora el script divide el JSON en varios bloques legibles.
 - La metadata de sync viaja al final de `notes` entre marcadores para mantener el vinculo estable.
 - Si editas una tarea desde la web, el cambio se empuja a Google Tasks en la siguiente corrida del script.
 - Si editas una tarea en Google Tasks, el cambio baja a Firebase y se refleja en la web.
