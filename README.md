@@ -89,6 +89,8 @@ Las materias admitidas son:
 - La metadata de sync viaja al final de `notes` entre marcadores para mantener el vinculo estable.
 - Si editas una tarea desde la web, el cambio se empuja a Google Tasks en la siguiente corrida del script.
 - Si editas una tarea en Google Tasks, el cambio baja a Firebase y se refleja en la web.
+- Si creas una tarea de voz con formato tipo `comentario para tp1 de electronica, revisar mediciones`, el script intenta tratarla como un comando para anexar ese comentario a una tarea existente y luego elimina esa tarea-comando de Google Tasks.
+- El parser ahora intenta que `Tarea` quede como `TP1`, `TP2`, `Parcial`, `Final`, etc., y no como el texto completo de la materia.
 
 ## Firebase
 
