@@ -291,14 +291,91 @@ function previewGoogleTasksParsing() {
   const taskList = getInboxTaskList_();
   const preview = getTasksFromList_(taskList.id).slice(0, 10).map(function(task) {
     return {
+      id: task.id,
       title: task.title,
       notes: task.notes || '',
+      due: task.due || '',
+      updated: task.updated || '',
+      status: task.status || '',
       parsed: parseGoogleTask_(task, taskList)
     };
   });
 
   log('Vista previa de parseo', preview);
   return preview;
+}
+
+function inspectInboxTasksRaw(limit) {
+  const taskList = getInboxTaskList_();
+  const max = Math.max(1, Math.min(Number(limit) || 10, 50));
+  const tasks = getTasksFromList_(taskList.id).slice(0, max);
+  const payload = {
+    taskList: taskList,
+    totalReturned: tasks.length,
+    tasks: tasks.map(function(task) {
+      return sanitizeRawTask_(task);
+    })
+  };
+
+  log('Inspeccion raw de tareas del inbox', payload);
+  return payload;
+}
+
+function inspectInboxTaskByQuery(query) {
+  const taskList = getInboxTaskList_();
+  const normalizedQuery = normalizeText_(query);
+  if (!normalizedQuery) {
+    throw new Error('Debes pasar un texto para buscar la tarea. Ejemplo: inspectInboxTaskByQuery("electronica")');
+  }
+
+  const task = getTasksFromList_(taskList.id).find(function(item) {
+    const haystack = normalizeText_([item.title || '', item.notes || ''].join(' '));
+    return haystack.indexOf(normalizedQuery) !== -1;
+  });
+
+  if (!task) {
+    log('No se encontro tarea para la consulta', { query: query, taskList: taskList });
+    return null;
+  }
+
+  const payload = {
+    taskList: taskList,
+    task: sanitizeRawTask_(task),
+    parsed: parseGoogleTask_(task, taskList),
+    notesParsed: parseGoogleNotes_(task.notes || '')
+  };
+
+  log('Inspeccion raw de una tarea del inbox', payload);
+  return payload;
+}
+
+function listInboxTaskFieldMap(limit) {
+  const taskList = getInboxTaskList_();
+  const max = Math.max(1, Math.min(Number(limit) || 20, 100));
+  const tasks = getTasksFromList_(taskList.id).slice(0, max);
+  const fieldPresence = {};
+
+  tasks.forEach(function(task) {
+    Object.keys(task || {}).forEach(function(key) {
+      if (!fieldPresence[key]) {
+        fieldPresence[key] = {
+          count: 0,
+          sampleType: typeof task[key],
+          sampleValue: summarizeFieldValue_(task[key])
+        };
+      }
+      fieldPresence[key].count += 1;
+    });
+  });
+
+  const payload = {
+    taskList: taskList,
+    inspectedTasks: tasks.length,
+    fieldPresence: fieldPresence
+  };
+
+  log('Mapa de campos disponibles en tareas del inbox', payload);
+  return payload;
 }
 
 function loadSyncState() {
@@ -746,6 +823,19 @@ function cleanTaskTitle_(title) {
 
 function cleanMultilineText_(text) {
   return String(text || '').replace(/\r/g, '').trim();
+}
+
+function sanitizeRawTask_(task) {
+  const clone = JSON.parse(JSON.stringify(task || {}));
+  clone._availableKeys = Object.keys(task || {}).sort();
+  return clone;
+}
+
+function summarizeFieldValue_(value) {
+  if (value === null || typeof value === 'undefined') return '';
+  if (typeof value === 'string') return value.slice(0, 120);
+  if (typeof value === 'number' || typeof value === 'boolean') return String(value);
+  return JSON.stringify(value).slice(0, 120);
 }
 
 function firebaseRequest_(path, method, payload) {
