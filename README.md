@@ -63,12 +63,24 @@ Las materias admitidas son:
 5. Ejecuta `syncGoogleTasksToFirebase()` una vez para autorizar y probar.
 6. Si el resultado te sirve, ejecuta `installGoogleTasksSyncTrigger()` para correrlo cada 15 minutos.
 
+### Funciones utiles para inspeccionar datos reales de Google Tasks
+
+- `previewGoogleTasksParsing()`
+  - muestra un resumen con `id`, `title`, `notes`, `due`, `updated`, `status` y el parseo actual
+- `inspectInboxTasksRaw(10)`
+  - devuelve las tareas crudas del inbox con todos los campos que expone la API
+- `inspectInboxTaskByQuery("electronica")`
+  - busca una tarea por texto y devuelve el objeto completo, el parseo y el desglose de `notes`
+- `listInboxTaskFieldMap(20)`
+  - arma un mapa de campos presentes para ver rapidamente que propiedades aparecen en tus tareas reales
+
 ### Notas de diseno
 
 - El parser prioriza tus materias reales y descarta lo que no entre en ese contexto.
 - La lista de entrada puede fijarse por ID o por nombre si algun dia queres cambiarla.
 - Si no encuentra `Mis tareas`, usa la primera lista disponible como mejor inferencia del inbox real y lo deja registrado en logs.
 - Los comentarios de la web se sincronizan con `notes` de Google Tasks.
+- Si Google Assistant realmente guarda una "descripcion", estas funciones te van a mostrar en que campo cae.
 - La metadata de sync viaja al final de `notes` entre marcadores para mantener el vinculo estable.
 - Si editas una tarea desde la web, el cambio se empuja a Google Tasks en la siguiente corrida del script.
 - Si editas una tarea en Google Tasks, el cambio baja a Firebase y se refleja en la web.
