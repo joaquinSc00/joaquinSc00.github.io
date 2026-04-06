@@ -96,6 +96,7 @@ function syncGoogleTasksToFirebase() {
     googleTasks.forEach(function(task) {
       googleById[task.id] = task;
       const googleKey = buildGoogleStateKey_(taskList.id, task.id);
+      const parsed = parseGoogleTask_(task, taskList);
 
       if (shouldDeleteGoogleTask_(task)) {
         const firebaseIdToRemove = findFirebaseIdForGoogleTask_(firebaseTasks, state, taskList.id, task.id);
@@ -111,32 +112,6 @@ function syncGoogleTasksToFirebase() {
           });
         }
         delete state.googleTasks[googleKey];
-        return;
-      }
-
-      const parsed = parseGoogleTask_(task, taskList);
-      if (parsed && parsed.commandType === 'append_comment') {
-        const commentApplied = applyCommentCommand_(firebaseTasks, parsed, taskList.id, task.id);
-        if (commentApplied) {
-          deleteGoogleTask_(taskList.id, task.id);
-          delete state.googleTasks[googleKey];
-          summary.firebaseActualizadas += 1;
-          summary.googleEliminadas += 1;
-          log('Comando de comentario aplicado sobre tarea existente', {
-            googleTaskId: task.id,
-            firebaseId: commentApplied.id,
-            contexto: commentApplied.contexto,
-            tarea: commentApplied.tarea
-          });
-        } else {
-          summary.descartadas += 1;
-          log('No se encontro tarea destino para el comando de comentario', {
-            googleTaskId: task.id,
-            title: task.title || '',
-            contexto: parsed.contexto || '',
-            referencia: parsed.targetTaskRef || ''
-          });
-        }
         return;
       }
 
@@ -617,24 +592,7 @@ function parseGoogleTask_(task, taskList) {
   const notesInfo = parseGoogleNotes_(task.notes || '');
   const metadata = notesInfo.metadata;
   const text = [task.title || '', notesInfo.userNotes || '', metadata.contexto || '', metadata.tipoActividad || ''].join(' ').trim();
-  const command = detectCommandIntent_(task.title || '', notesInfo.userNotes || '');
-  if (command) {
-    const commandContext = detectContext_(command.referenceText || text, taskList);
-    const targetTaskLabel = extractTaskLabel_(command.referenceText || text, detectTaskType_(command.referenceText || text));
-
-    return {
-      commandType: 'append_comment',
-      contexto: commandContext.contexto || '',
-      targetTaskRef: targetTaskLabel || cleanTaskTitle_(command.referenceText || ''),
-      comentarios: command.commentText,
-      fuenteId: task.id,
-      listaId: taskList.id,
-      googleTaskId: task.id,
-      googleTaskListId: taskList.id,
-      googleUpdatedAt: task.updated || ''
-    };
-  }
-
+  const titleParts = splitTitleAndDescription_(task.title || '');
   const subjectMatch = metadata.contexto && isValidSubject_(metadata.contexto)
     ? { contexto: metadata.contexto, alias: 'metadata' }
     : detectContext_(text, taskList);
@@ -646,8 +604,8 @@ function parseGoogleTask_(task, taskList) {
   const taskType = metadata.tipoActividad
     ? { tipo: metadata.tipoActividad, alias: 'metadata' }
     : detectTaskType_(text);
-  const taskLabel = extractTaskLabel_(task.title || '', taskType);
-  const inferredComments = extractTaskComments_(task.title || '', subjectMatch, taskType, notesInfo.userNotes || '');
+  const taskLabel = extractTaskLabel_(titleParts.mainTitle || task.title || '', taskType);
+  const inferredComments = extractTaskComments_(titleParts, subjectMatch, taskType, notesInfo.userNotes || '');
 
   return {
     id: metadata.firebaseId || '',
@@ -727,48 +685,6 @@ function mergeGoogleTaskIntoFirebase_(currentTask, parsedTask, firebaseId) {
   };
 }
 
-function applyCommentCommand_(firebaseTasks, parsedTask, taskListId, googleTaskId) {
-  const target = findTaskForCommentCommand_(firebaseTasks, parsedTask);
-  if (!target) return null;
-
-  const nuevoComentario = cleanMultilineText_(parsedTask.comentarios || '');
-  if (!nuevoComentario) return null;
-
-  const comentariosActuales = cleanMultilineText_(target.comentarios || '');
-  target.comentarios = appendCommentText_(comentariosActuales, nuevoComentario);
-  target.origen = 'google_tasks';
-  target.ultimaActualizacion = parsedTask.googleUpdatedAt || new Date().toISOString();
-  target.sincronizadoEn = new Date().toISOString();
-  target.googleTaskListId = target.googleTaskListId || taskListId;
-  target.listaId = target.listaId || taskListId;
-
-  firebaseTasks[target.id] = target;
-  return target;
-}
-
-function findTaskForCommentCommand_(firebaseTasks, parsedTask) {
-  const contexto = parsedTask.contexto || '';
-  const referencia = normalizeTaskReference_(parsedTask.targetTaskRef || '');
-  if (!contexto || !referencia) return null;
-
-  const candidatos = Object.keys(firebaseTasks).map(function(firebaseId) {
-    return normalizeFirebaseTaskRecord_(firebaseId, firebaseTasks[firebaseId]);
-  }).filter(function(task) {
-    return task.contexto === contexto;
-  });
-
-  const exacto = candidatos.find(function(task) {
-    return normalizeTaskReference_(task.tarea) === referencia;
-  });
-  if (exacto) return exacto;
-
-  const parcial = candidatos.find(function(task) {
-    const taskRef = normalizeTaskReference_(task.tarea);
-    return taskRef.indexOf(referencia) !== -1 || referencia.indexOf(taskRef) !== -1;
-  });
-  return parcial || null;
-}
-
 function createGoogleTaskFromFirebase_(taskListId, task, firebaseId) {
   return Tasks.Tasks.insert({
     title: task.tarea,
@@ -842,25 +758,15 @@ function detectTaskType_(text) {
   return { tipo: '', alias: '' };
 }
 
-function detectCommandIntent_(title, userNotes) {
-  const text = cleanTaskTitle_([title || '', userNotes || ''].join(' ').trim());
-  const normalized = normalizeText_(text);
-  const match = normalized.match(/(?:anadir tarea[, ]+|agregar tarea[, ]+)?(?:agregar|anadir)?\s*(comentario|nota|descripcion)\s+para\s+(.+?)(?:,|:| - )\s*(.+)$/);
-  if (!match) return null;
-
-  return {
-    command: match[1],
-    referenceText: match[2],
-    commentText: cleanTaskTitle_(match[3])
-  };
-}
-
 function extractTaskLabel_(title, taskType) {
-  const rawTitle = String(title || '');
+  const rawTitle = cleanTaskTitle_(String(title || ''));
   const normalized = normalizeText_(rawTitle);
 
   const tpMatch = normalized.match(/\btp[\s-]*(\d+)\b/);
   if (tpMatch) return 'TP' + tpMatch[1];
+
+  const dpMatch = normalized.match(/\bdp[\s-]*(\d+)\b/);
+  if (dpMatch) return 'TP' + dpMatch[1];
 
   if (taskType && taskType.tipo) {
     return prettyTaskTypeLabel_(taskType.tipo);
@@ -872,19 +778,24 @@ function extractTaskLabel_(title, taskType) {
   return '';
 }
 
-function extractTaskComments_(title, subjectMatch, taskType, existingNotes) {
+function extractTaskComments_(titleParts, subjectMatch, taskType, existingNotes) {
   const directNotes = cleanMultilineText_(existingNotes || '');
   if (directNotes) return directNotes;
 
-  let text = String(title || '');
-  if (!text) return '';
+  const explicitDescription = cleanMultilineText_(titleParts.description || '');
+  if (explicitDescription) return explicitDescription;
 
+  let text = String(titleParts.mainTitle || '');
+  if (!text) return '';
   text = removeSubjectAliases_(text, subjectMatch);
   text = removeDatePhrases_(text);
   text = removeTaskTypePhrases_(text, taskType);
   text = text.replace(/^\s*[-:,]\s*/g, '');
   text = text.replace(/\b(entregar|entrega|tarea|para|de)\b/gi, ' ');
+  text = text.replace(/\bel\b/gi, ' ');
+  text = text.replace(/\bla\b/gi, ' ');
   text = text.replace(/\btp[\s-]*\d+\b/gi, ' ');
+  text = text.replace(/\bdp[\s-]*\d+\b/gi, ' ');
   text = text.replace(/\s+/g, ' ').trim();
 
   if (!text) return '';
@@ -910,6 +821,7 @@ function removeSubjectAliases_(text, subjectMatch) {
 function removeTaskTypePhrases_(text, taskType) {
   let result = text;
   result = result.replace(/\btp[\s-]*\d+\b/gi, ' ');
+  result = result.replace(/\bdp[\s-]*\d+\b/gi, ' ');
   result = result.replace(/\bparcial\b/gi, ' ');
   result = result.replace(/\bfinal\b/gi, ' ');
   result = result.replace(/\bevaluacion\b/gi, ' ');
@@ -951,19 +863,25 @@ function prettyTaskTypeLabel_(tipo) {
   return labels[tipo] || '';
 }
 
-function normalizeTaskReference_(text) {
-  return normalizeText_(text || '')
-    .replace(/\btrabajo practico\b/g, 'tp')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
+function splitTitleAndDescription_(title) {
+  const raw = String(title || '');
+  const separators = [' - ', ': '];
 
-function appendCommentText_(currentText, newText) {
-  if (!currentText) return newText;
-  const normalizedCurrent = normalizeText_(currentText);
-  const normalizedNew = normalizeText_(newText);
-  if (normalizedCurrent.indexOf(normalizedNew) !== -1) return currentText;
-  return currentText + '\n' + newText;
+  for (let i = 0; i < separators.length; i += 1) {
+    const separator = separators[i];
+    const index = raw.indexOf(separator);
+    if (index !== -1) {
+      return {
+        mainTitle: cleanTaskTitle_(raw.slice(0, index)),
+        description: cleanTaskTitle_(raw.slice(index + separator.length))
+      };
+    }
+  }
+
+  return {
+    mainTitle: cleanTaskTitle_(raw),
+    description: ''
+  };
 }
 
 function detectPriority_(text) {
