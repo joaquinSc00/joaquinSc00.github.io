@@ -318,6 +318,7 @@ function inspectInboxTasksRaw(limit) {
   };
 
   log('Inspeccion raw de tareas del inbox', payload);
+  logJsonChunks_('inspectInboxTasksRaw', payload);
   return payload;
 }
 
@@ -346,6 +347,7 @@ function inspectInboxTaskByQuery(query) {
   };
 
   log('Inspeccion raw de una tarea del inbox', payload);
+  logJsonChunks_('inspectInboxTaskByQuery', payload);
   return payload;
 }
 
@@ -375,6 +377,67 @@ function listInboxTaskFieldMap(limit) {
   };
 
   log('Mapa de campos disponibles en tareas del inbox', payload);
+  logJsonChunks_('listInboxTaskFieldMap', payload);
+  return payload;
+}
+
+function debugInboxHumanView(limit) {
+  const taskList = getInboxTaskList_();
+  const max = Math.max(1, Math.min(Number(limit) || 10, 50));
+  const tasks = getTasksFromList_(taskList.id).slice(0, max);
+
+  const lines = [];
+  lines.push('Lista usada: ' + taskList.title + ' (' + taskList.id + ')');
+  lines.push('Cantidad inspeccionada: ' + tasks.length);
+
+  tasks.forEach(function(task, index) {
+    const notesInfo = parseGoogleNotes_(task.notes || '');
+    lines.push('');
+    lines.push('--- TAREA ' + (index + 1) + ' ---');
+    lines.push('id: ' + (task.id || ''));
+    lines.push('title: ' + (task.title || ''));
+    lines.push('notes: ' + (task.notes || ''));
+    lines.push('due: ' + (task.due || ''));
+    lines.push('status: ' + (task.status || ''));
+    lines.push('updated: ' + (task.updated || ''));
+    lines.push('deleted: ' + String(!!task.deleted));
+    lines.push('hidden: ' + String(!!task.hidden));
+    lines.push('notes.userNotes: ' + (notesInfo.userNotes || ''));
+    lines.push('notes.metadata: ' + JSON.stringify(notesInfo.metadata || {}));
+    lines.push('parsed: ' + JSON.stringify(parseGoogleTask_(task, taskList)));
+    lines.push('keys: ' + Object.keys(task || {}).sort().join(', '));
+  });
+
+  const report = lines.join('\n');
+  log('Vista humana del inbox generada', { taskListId: taskList.id, tareas: tasks.length });
+  logTextChunks_('debugInboxHumanView', report);
+  return report;
+}
+
+function inspectLatestAcademicTask() {
+  const taskList = getInboxTaskList_();
+  const tasks = getTasksFromList_(taskList.id);
+  const found = tasks.find(function(task) {
+    return !!parseGoogleTask_(task, taskList);
+  });
+
+  if (!found) {
+    log('No se encontro ninguna tarea academica parseable en el inbox');
+    return null;
+  }
+
+  const payload = {
+    taskList: taskList,
+    task: sanitizeRawTask_(found),
+    parsed: parseGoogleTask_(found, taskList),
+    notesParsed: parseGoogleNotes_(found.notes || '')
+  };
+
+  log('Inspeccion de la primera tarea academica detectada', {
+    id: found.id || '',
+    title: found.title || ''
+  });
+  logJsonChunks_('inspectLatestAcademicTask', payload);
   return payload;
 }
 
@@ -836,6 +899,24 @@ function summarizeFieldValue_(value) {
   if (typeof value === 'string') return value.slice(0, 120);
   if (typeof value === 'number' || typeof value === 'boolean') return String(value);
   return JSON.stringify(value).slice(0, 120);
+}
+
+function logJsonChunks_(label, value) {
+  const text = JSON.stringify(value, null, 2);
+  logTextChunks_(label, text);
+}
+
+function logTextChunks_(label, text) {
+  const chunkSize = 7000;
+  const value = String(text || '');
+  const total = Math.max(1, Math.ceil(value.length / chunkSize));
+
+  for (let i = 0; i < total; i += 1) {
+    const start = i * chunkSize;
+    const end = start + chunkSize;
+    const chunk = value.slice(start, end);
+    console.log('%s %s %s/%s\n%s', CONFIG.LOG_PREFIX, label, i + 1, total, chunk);
+  }
 }
 
 function firebaseRequest_(path, method, payload) {
