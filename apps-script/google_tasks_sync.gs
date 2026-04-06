@@ -115,6 +115,31 @@ function syncGoogleTasksToFirebase() {
       }
 
       const parsed = parseGoogleTask_(task, taskList);
+      if (parsed && parsed.commandType === 'append_comment') {
+        const commentApplied = applyCommentCommand_(firebaseTasks, parsed, taskList.id, task.id);
+        if (commentApplied) {
+          deleteGoogleTask_(taskList.id, task.id);
+          delete state.googleTasks[googleKey];
+          summary.firebaseActualizadas += 1;
+          summary.googleEliminadas += 1;
+          log('Comando de comentario aplicado sobre tarea existente', {
+            googleTaskId: task.id,
+            firebaseId: commentApplied.id,
+            contexto: commentApplied.contexto,
+            tarea: commentApplied.tarea
+          });
+        } else {
+          summary.descartadas += 1;
+          log('No se encontro tarea destino para el comando de comentario', {
+            googleTaskId: task.id,
+            title: task.title || '',
+            contexto: parsed.contexto || '',
+            referencia: parsed.targetTaskRef || ''
+          });
+        }
+        return;
+      }
+
       if (!parsed) {
         summary.descartadas += 1;
         log('Tarea descartada por no pertenecer a una materia valida', {
@@ -592,6 +617,24 @@ function parseGoogleTask_(task, taskList) {
   const notesInfo = parseGoogleNotes_(task.notes || '');
   const metadata = notesInfo.metadata;
   const text = [task.title || '', notesInfo.userNotes || '', metadata.contexto || '', metadata.tipoActividad || ''].join(' ').trim();
+  const command = detectCommandIntent_(task.title || '', notesInfo.userNotes || '');
+  if (command) {
+    const commandContext = detectContext_(command.referenceText || text, taskList);
+    const targetTaskLabel = extractTaskLabel_(command.referenceText || text, detectTaskType_(command.referenceText || text));
+
+    return {
+      commandType: 'append_comment',
+      contexto: commandContext.contexto || '',
+      targetTaskRef: targetTaskLabel || cleanTaskTitle_(command.referenceText || ''),
+      comentarios: command.commentText,
+      fuenteId: task.id,
+      listaId: taskList.id,
+      googleTaskId: task.id,
+      googleTaskListId: taskList.id,
+      googleUpdatedAt: task.updated || ''
+    };
+  }
+
   const subjectMatch = metadata.contexto && isValidSubject_(metadata.contexto)
     ? { contexto: metadata.contexto, alias: 'metadata' }
     : detectContext_(text, taskList);
@@ -603,13 +646,15 @@ function parseGoogleTask_(task, taskList) {
   const taskType = metadata.tipoActividad
     ? { tipo: metadata.tipoActividad, alias: 'metadata' }
     : detectTaskType_(text);
+  const taskLabel = extractTaskLabel_(task.title || '', taskType);
+  const inferredComments = extractTaskComments_(task.title || '', subjectMatch, taskType, notesInfo.userNotes || '');
 
   return {
     id: metadata.firebaseId || '',
     contexto: subjectMatch.contexto,
-    tarea: cleanTaskTitle_(task.title || notesInfo.userNotes || 'Tarea sin titulo'),
+    tarea: taskLabel || cleanTaskTitle_(task.title || notesInfo.userNotes || 'Tarea sin titulo'),
     fecha: detectDate_(task, text, metadata),
-    comentarios: notesInfo.userNotes || '',
+    comentarios: inferredComments,
     prioridad: metadata.prioridad || detectPriority_(text),
     tipoActividad: taskType.tipo || '',
     fuenteId: task.id,
@@ -680,6 +725,48 @@ function mergeGoogleTaskIntoFirebase_(currentTask, parsedTask, firebaseId) {
     ultimaActualizacion: parsedTask.googleUpdatedAt || now,
     sincronizadoEn: now
   };
+}
+
+function applyCommentCommand_(firebaseTasks, parsedTask, taskListId, googleTaskId) {
+  const target = findTaskForCommentCommand_(firebaseTasks, parsedTask);
+  if (!target) return null;
+
+  const nuevoComentario = cleanMultilineText_(parsedTask.comentarios || '');
+  if (!nuevoComentario) return null;
+
+  const comentariosActuales = cleanMultilineText_(target.comentarios || '');
+  target.comentarios = appendCommentText_(comentariosActuales, nuevoComentario);
+  target.origen = 'google_tasks';
+  target.ultimaActualizacion = parsedTask.googleUpdatedAt || new Date().toISOString();
+  target.sincronizadoEn = new Date().toISOString();
+  target.googleTaskListId = target.googleTaskListId || taskListId;
+  target.listaId = target.listaId || taskListId;
+
+  firebaseTasks[target.id] = target;
+  return target;
+}
+
+function findTaskForCommentCommand_(firebaseTasks, parsedTask) {
+  const contexto = parsedTask.contexto || '';
+  const referencia = normalizeTaskReference_(parsedTask.targetTaskRef || '');
+  if (!contexto || !referencia) return null;
+
+  const candidatos = Object.keys(firebaseTasks).map(function(firebaseId) {
+    return normalizeFirebaseTaskRecord_(firebaseId, firebaseTasks[firebaseId]);
+  }).filter(function(task) {
+    return task.contexto === contexto;
+  });
+
+  const exacto = candidatos.find(function(task) {
+    return normalizeTaskReference_(task.tarea) === referencia;
+  });
+  if (exacto) return exacto;
+
+  const parcial = candidatos.find(function(task) {
+    const taskRef = normalizeTaskReference_(task.tarea);
+    return taskRef.indexOf(referencia) !== -1 || referencia.indexOf(taskRef) !== -1;
+  });
+  return parcial || null;
 }
 
 function createGoogleTaskFromFirebase_(taskListId, task, firebaseId) {
@@ -753,6 +840,130 @@ function detectTaskType_(text) {
   if (numberedTp) return { tipo: 'trabajo practico', alias: numberedTp[0] };
 
   return { tipo: '', alias: '' };
+}
+
+function detectCommandIntent_(title, userNotes) {
+  const text = cleanTaskTitle_([title || '', userNotes || ''].join(' ').trim());
+  const normalized = normalizeText_(text);
+  const match = normalized.match(/(?:anadir tarea[, ]+|agregar tarea[, ]+)?(?:agregar|anadir)?\s*(comentario|nota|descripcion)\s+para\s+(.+?)(?:,|:| - )\s*(.+)$/);
+  if (!match) return null;
+
+  return {
+    command: match[1],
+    referenceText: match[2],
+    commentText: cleanTaskTitle_(match[3])
+  };
+}
+
+function extractTaskLabel_(title, taskType) {
+  const rawTitle = String(title || '');
+  const normalized = normalizeText_(rawTitle);
+
+  const tpMatch = normalized.match(/\btp[\s-]*(\d+)\b/);
+  if (tpMatch) return 'TP' + tpMatch[1];
+
+  if (taskType && taskType.tipo) {
+    return prettyTaskTypeLabel_(taskType.tipo);
+  }
+
+  const entregaMatch = normalized.match(/\b(entrega|entregar)\b/);
+  if (entregaMatch) return 'Entrega';
+
+  return '';
+}
+
+function extractTaskComments_(title, subjectMatch, taskType, existingNotes) {
+  const directNotes = cleanMultilineText_(existingNotes || '');
+  if (directNotes) return directNotes;
+
+  let text = String(title || '');
+  if (!text) return '';
+
+  text = removeSubjectAliases_(text, subjectMatch);
+  text = removeDatePhrases_(text);
+  text = removeTaskTypePhrases_(text, taskType);
+  text = text.replace(/^\s*[-:,]\s*/g, '');
+  text = text.replace(/\b(entregar|entrega|tarea|para|de)\b/gi, ' ');
+  text = text.replace(/\btp[\s-]*\d+\b/gi, ' ');
+  text = text.replace(/\s+/g, ' ').trim();
+
+  if (!text) return '';
+  if (/^(parcial|final|entrega|tp\d+|tp)$/i.test(text)) return '';
+  return text;
+}
+
+function removeSubjectAliases_(text, subjectMatch) {
+  if (!subjectMatch || !subjectMatch.contexto) return text;
+  const rule = SUBJECT_RULES.find(function(item) {
+    return item.contexto === subjectMatch.contexto;
+  });
+  if (!rule) return text;
+
+  let result = text;
+  rule.aliases.forEach(function(alias) {
+    const escaped = alias.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    result = result.replace(new RegExp(escaped, 'ig'), ' ');
+  });
+  return result;
+}
+
+function removeTaskTypePhrases_(text, taskType) {
+  let result = text;
+  result = result.replace(/\btp[\s-]*\d+\b/gi, ' ');
+  result = result.replace(/\bparcial\b/gi, ' ');
+  result = result.replace(/\bfinal\b/gi, ' ');
+  result = result.replace(/\bevaluacion\b/gi, ' ');
+  result = result.replace(/\binforme\b/gi, ' ');
+  result = result.replace(/\bguia\b/gi, ' ');
+  result = result.replace(/\bcoloquio\b/gi, ' ');
+  result = result.replace(/\blaboratorio\b/gi, ' ');
+  result = result.replace(/\bdefensa\b/gi, ' ');
+  result = result.replace(/\bexposicion\b/gi, ' ');
+  if (taskType && taskType.alias) {
+    const escaped = taskType.alias.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    result = result.replace(new RegExp(escaped, 'ig'), ' ');
+  }
+  return result;
+}
+
+function removeDatePhrases_(text) {
+  return String(text || '')
+    .replace(/\bel\s+\d{1,2}\s+de\s+[a-záéíóú]+\b/gi, ' ')
+    .replace(/\bpara\s+el\s+\d{1,2}\s+de\s+[a-záéíóú]+\b/gi, ' ')
+    .replace(/\b\d{1,2}\/\d{1,2}(?:\/\d{2,4})?\b/gi, ' ')
+    .replace(/\b(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|setiembre|octubre|noviembre|diciembre)\b/gi, ' ');
+}
+
+function prettyTaskTypeLabel_(tipo) {
+  const labels = {
+    'trabajo practico': 'TP',
+    parcial: 'Parcial',
+    evaluacion: 'Evaluacion',
+    final: 'Final',
+    informe: 'Informe',
+    guia: 'Guia',
+    entrega: 'Entrega',
+    coloquio: 'Coloquio',
+    laboratorio: 'Laboratorio',
+    exposicion: 'Exposicion',
+    defensa: 'Defensa'
+  };
+  return labels[tipo] || '';
+}
+
+function normalizeTaskReference_(text) {
+  return normalizeText_(text || '')
+    .replace(/\btrabajo practico\b/g, 'tp')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function appendCommentText_(currentText, newText) {
+  if (!currentText) return newText;
+  const normalizedCurrent = normalizeText_(currentText);
+  const normalizedNew = normalizeText_(newText);
+  if (normalizedCurrent.indexOf(normalizedNew) !== -1) return currentText;
+  return currentText + '\n' + newText;
 }
 
 function detectPriority_(text) {
