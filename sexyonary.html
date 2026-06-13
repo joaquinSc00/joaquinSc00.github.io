@@ -1388,6 +1388,7 @@
             <textarea id="cardsInput" spellcheck="false"></textarea>
             <div class="action-row">
               <button id="loadCardsButton" type="button">Cargar diccionario</button>
+              <button id="loadPublishedCardsButton" class="secondary" type="button">Cargar mazo PDF</button>
               <button id="loadFileCardsButton" class="secondary" type="button">Usar archivo elegido</button>
               <button id="restoreCardsButton" class="secondary" type="button">Restaurar mazo base</button>
             </div>
@@ -1407,7 +1408,8 @@
 
   <script>
     const STORAGE_KEY = "sexyonary-board-state-v1";
-    const CARDS_KEY = "sexyonary-card-pack-v2";
+    const CARDS_KEY = "sexyonary-card-pack-v3";
+    const PUBLISHED_CARD_PACK_URL = "sexyonary-cartas-pdf-filtrado.json";
 
     const TEAM_COLORS = [
       "#d64b4b",
@@ -1740,6 +1742,7 @@
       bindEvents();
       renderAll();
       setupCanvas();
+      autoloadPublishedCardPack();
     });
 
     function bindDom() {
@@ -1791,6 +1794,7 @@
       dom.cardsFileInput = document.getElementById("cardsFileInput");
       dom.cardsInput = document.getElementById("cardsInput");
       dom.loadCardsButton = document.getElementById("loadCardsButton");
+      dom.loadPublishedCardsButton = document.getElementById("loadPublishedCardsButton");
       dom.loadFileCardsButton = document.getElementById("loadFileCardsButton");
       dom.restoreCardsButton = document.getElementById("restoreCardsButton");
       dom.cardsMessage = document.getElementById("cardsMessage");
@@ -1851,6 +1855,7 @@
       dom.resolveAllPlayButton.addEventListener("click", resolveAllPlay);
       dom.clearCanvasButton.addEventListener("click", clearCanvas);
       dom.loadCardsButton.addEventListener("click", importCards);
+      dom.loadPublishedCardsButton.addEventListener("click", () => loadPublishedCardPack(true));
       dom.loadFileCardsButton.addEventListener("click", importCardsFromFile);
       dom.restoreCardsButton.addEventListener("click", restoreDefaultCards);
       window.addEventListener("resize", debounce(resizeCanvas, 160));
@@ -2456,6 +2461,31 @@
         applyCardPack(parsed, "Diccionario cargado y mazos reiniciados.");
       } catch (error) {
         dom.cardsMessage.textContent = "JSON invalido. Revisa comillas, corchetes y claves.";
+      }
+    }
+
+    function autoloadPublishedCardPack() {
+      try {
+        if (localStorage.getItem(CARDS_KEY)) return;
+      } catch (error) {
+        return;
+      }
+      loadPublishedCardPack(false);
+    }
+
+    async function loadPublishedCardPack(showErrors) {
+      try {
+        dom.cardsMessage.textContent = "Cargando mazo PDF publicado...";
+        const response = await fetch(PUBLISHED_CARD_PACK_URL, { cache: "no-store" });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const parsed = await response.json();
+        applyCardPack(parsed, "Mazo PDF cargado.");
+      } catch (error) {
+        if (showErrors) {
+          dom.cardsMessage.textContent = "No pude cargar el mazo publicado. Probalo desde la pagina subida o carga el JSON local.";
+        } else {
+          dom.cardsMessage.textContent = `Mazo base listo. ${cardPackSummary(cardPack)}.`;
+        }
       }
     }
 
