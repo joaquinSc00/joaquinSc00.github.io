@@ -322,19 +322,64 @@
     }
 
     .board-wrap {
-      overflow-x: auto;
+      overflow: auto;
       padding: 18px;
       background:
+        radial-gradient(circle at 16% 18%, rgba(242, 199, 68, 0.24), transparent 18%),
+        radial-gradient(circle at 82% 84%, rgba(216, 76, 76, 0.16), transparent 24%),
         linear-gradient(90deg, rgba(87, 63, 35, 0.035) 1px, transparent 1px) 0 0 / 18px 18px,
         #fff8ea;
     }
 
     .board-grid {
-      display: grid;
-      grid-template-columns: repeat(var(--board-cols), minmax(58px, 1fr));
-      gap: 8px;
-      min-width: 730px;
-      padding: 2px;
+      position: relative;
+      width: var(--board-width, 980px);
+      height: var(--board-height, 520px);
+      min-width: var(--board-width, 980px);
+      border-radius: 28px;
+      background:
+        linear-gradient(145deg, rgba(255, 255, 255, 0.54), rgba(255, 237, 197, 0.34)),
+        radial-gradient(circle at 50% 50%, rgba(22, 140, 136, 0.09), transparent 58%);
+      box-shadow:
+        inset 0 0 0 1px rgba(255, 255, 255, 0.72),
+        inset 0 0 42px rgba(99, 67, 22, 0.08);
+      overflow: hidden;
+    }
+
+    .board-grid::before {
+      content: "";
+      position: absolute;
+      inset: 18px;
+      border: 2px dashed rgba(103, 83, 48, 0.12);
+      border-radius: 24px;
+      pointer-events: none;
+    }
+
+    .board-path {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+      pointer-events: none;
+      z-index: 0;
+      filter: drop-shadow(0 6px 10px rgba(78, 50, 18, 0.14));
+    }
+
+    .board-path-line {
+      fill: none;
+      stroke: rgba(43, 39, 48, 0.16);
+      stroke-width: 20;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .board-path-highlight {
+      fill: none;
+      stroke: rgba(255, 255, 255, 0.48);
+      stroke-width: 8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
     }
 
     .space {
@@ -358,6 +403,31 @@
       transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
     }
 
+    .board-grid .space {
+      position: absolute;
+      left: var(--space-x);
+      top: var(--space-y);
+      width: var(--space-size, 72px);
+      height: var(--space-size, 72px);
+      min-height: 0;
+      border-radius: 22px;
+      z-index: 1;
+      transform: rotate(var(--space-tilt, 0deg));
+      animation: spaceDrop 360ms ease both;
+      animation-delay: var(--space-delay, 0ms);
+    }
+
+    .board-grid .space.start,
+    .board-grid .space.finish {
+      width: calc(var(--space-size, 72px) + 12px);
+      height: calc(var(--space-size, 72px) + 12px);
+      border-radius: 28px;
+      box-shadow:
+        0 0 0 5px color-mix(in srgb, var(--space-color) 18%, transparent),
+        0 18px 30px rgba(54, 37, 20, 0.18),
+        inset 0 1px 0 rgba(255, 255, 255, 0.92);
+    }
+
     .space::before {
       content: "";
       position: absolute;
@@ -370,7 +440,7 @@
     }
 
     .space:hover {
-      transform: translateY(-2px);
+      transform: rotate(var(--space-tilt, 0deg)) translateY(-4px) scale(1.03);
       box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, 0.95),
         0 14px 24px rgba(54, 37, 20, 0.13);
@@ -383,6 +453,7 @@
         inset 0 0 0 2px rgba(255, 255, 255, 0.78);
       outline-offset: 2px;
       animation: currentSpacePulse 1500ms ease-in-out infinite;
+      z-index: 4;
     }
 
     .space.blank {
@@ -515,6 +586,23 @@
       height: 18px;
       padding: 0;
       flex: 0 0 auto;
+    }
+
+    .file-import {
+      margin: 12px 0;
+      padding: 12px;
+      border: 1px dashed color-mix(in srgb, var(--brand) 35%, var(--line));
+      border-radius: 12px;
+      background:
+        linear-gradient(135deg, rgba(22, 140, 136, 0.08), rgba(255, 255, 255, 0.72));
+    }
+
+    .file-import input {
+      border: 0;
+      padding: 8px 0 0;
+      background: transparent;
+      box-shadow: none;
+      font-size: 0.88rem;
     }
 
     .teams-editor {
@@ -935,10 +1023,21 @@
     @keyframes currentSpacePulse {
       0%,
       100% {
-        transform: translateY(0) scale(1);
+        transform: rotate(var(--space-tilt, 0deg)) translateY(0) scale(1);
       }
       50% {
-        transform: translateY(-2px) scale(1.025);
+        transform: rotate(var(--space-tilt, 0deg)) translateY(-4px) scale(1.045);
+      }
+    }
+
+    @keyframes spaceDrop {
+      0% {
+        opacity: 0;
+        transform: rotate(var(--space-tilt, 0deg)) translateY(14px) scale(0.86);
+      }
+      100% {
+        opacity: 1;
+        transform: rotate(var(--space-tilt, 0deg)) translateY(0) scale(1);
       }
     }
 
@@ -1281,11 +1380,16 @@
         <details class="panel">
           <summary>Diccionario de cartas</summary>
           <div class="details-body">
-            <p class="muted-note">Pega aca un JSON con arrays por categoria. Claves esperadas: accion, persona, dificil, objeto, todos. El comodin reutiliza una de esas categorias.</p>
+            <p class="muted-note">Pega un JSON o importa un archivo local. Claves esperadas: accion, persona, dificil, objeto, todos. El comodin reutiliza una de esas categorias.</p>
+            <label class="file-import">
+              Archivo JSON local
+              <input id="cardsFileInput" type="file" accept=".json,application/json">
+            </label>
             <textarea id="cardsInput" spellcheck="false"></textarea>
             <div class="action-row">
               <button id="loadCardsButton" type="button">Cargar diccionario</button>
-              <button id="restoreCardsButton" class="secondary" type="button">Restaurar ejemplo</button>
+              <button id="loadFileCardsButton" class="secondary" type="button">Usar archivo elegido</button>
+              <button id="restoreCardsButton" class="secondary" type="button">Restaurar mazo base</button>
             </div>
             <p id="cardsMessage" class="muted-note" aria-live="polite"></p>
           </div>
@@ -1303,7 +1407,7 @@
 
   <script>
     const STORAGE_KEY = "sexyonary-board-state-v1";
-    const CARDS_KEY = "sexyonary-card-pack-v1";
+    const CARDS_KEY = "sexyonary-card-pack-v2";
 
     const TEAM_COLORS = [
       "#d64b4b",
@@ -1345,49 +1449,271 @@
       "persona"
     ];
 
-    // Reemplaza este objeto, o usa el importador de la pagina, cuando tengas el diccionario final.
-    const DEFAULT_CARD_PACK = {
-      accion: [
-        "Masaje improvisado",
-        "Bailar lento",
-        "Guinar el ojo",
-        "Hacer una serenata",
-        "Preparar una sorpresa",
-        "Pedir una cita"
-      ],
-      persona: [
-        "Cita a ciegas",
-        "Vecino curioso",
-        "Cupido distraido",
-        "Pareja de pelicula",
-        "Instructor de baile",
-        "Amor de verano"
-      ],
-      dificil: [
-        "Quimica",
-        "Verguenza ajena",
-        "Tension romantica",
-        "Malentendido",
-        "Confianza",
-        "Complicidad"
-      ],
-      objeto: [
-        "Perfume",
-        "Ramo de flores",
-        "Carta anonima",
-        "Anillo",
-        "Vela",
-        "Camisa elegante"
-      ],
-      todos: [
-        "Beso de pelicula",
-        "Cena romantica",
-        "Declaracion inesperada",
-        "Foto comprometida",
-        "Baile torpe",
-        "Mensaje secreto"
-      ]
-    };
+    const DEFAULT_CARD_PACK = buildDefaultCardPack();
+
+    function buildDefaultCardPack() {
+      return {
+        accion: uniqueCards([
+          ...mixCards([
+            "Besar",
+            "Morder",
+            "Acariciar",
+            "Desabrochar",
+            "Seducir",
+            "Provocar",
+            "Susurrar",
+            "Masajear",
+            "Esconder",
+            "Buscar"
+          ], [
+            "el cuello",
+            "la espalda",
+            "la cintura",
+            "la camisa",
+            "en el ascensor",
+            "en una fiesta",
+            "con una mirada",
+            "bajo la mesa",
+            "en el balcon",
+            "despues de medianoche"
+          ], 80),
+          "Mandar un mensaje picante",
+          "Bailar demasiado cerca",
+          "Hacer una propuesta indecente",
+          "Tapar una marca de labial",
+          "Perder una prenda",
+          "Pedir otra ronda",
+          "Cerrar la puerta con llave",
+          "Encender velas",
+          "Fingir inocencia",
+          "Robar un beso",
+          "Hacer contacto visual",
+          "Probar un perfume",
+          "Quitarse la camisa",
+          "Tirar indirectas",
+          "Preparar una sorpresa intima",
+          "Escaparse de la fiesta",
+          "Mandar una foto sugerente",
+          "Confesar un deseo",
+          "Usar una palabra clave",
+          "Hacer una llamada caliente"
+        ]),
+        persona: uniqueCards([
+          ...mixCards([
+            "Amante",
+            "Vecino",
+            "Desconocido",
+            "Invitado",
+            "Barman",
+            "Masajista",
+            "Modelo",
+            "Romantico"
+          ], [
+            "secreto",
+            "tentador",
+            "insistente",
+            "misterioso",
+            "con sonrisa peligrosa",
+            "de pelicula",
+            "demasiado confiado",
+            "en modo conquista"
+          ], 72),
+          ...mixCards([
+            "Cita",
+            "Persona",
+            "Invitada",
+            "Pareja",
+            "Tentacion",
+            "Historia",
+            "Aventura",
+            "Relacion",
+            "Noche",
+            "Mirada"
+          ], [
+            "secreta",
+            "tentadora",
+            "de madrugada",
+            "sin filtro",
+            "misteriosa",
+            "de pelicula",
+            "demasiado intensa",
+            "en modo conquista",
+            "con final abierto",
+            "para recordar"
+          ], 60),
+          "Cupido distraido",
+          "Pareja celosa",
+          "Conquistador barato",
+          "Persona irresistible",
+          "Romance de verano",
+          "Amor de una noche",
+          "Complice de travesura",
+          "Diva de boliche",
+          "Fanatico del perfume",
+          "Rey de las indirectas",
+          "Reina del drama",
+          "Tentacion con patas",
+          "Novio en apuros",
+          "Novia vengativa",
+          "Amigo con derechos",
+          "Confidente peligroso",
+          "Romantico empedernido",
+          "Seductor profesional",
+          "Invitada misteriosa",
+          "Pareja recien reconciliada"
+        ]),
+        objeto: uniqueCards([
+          ...mixCards([
+            "Copa",
+            "Camisa",
+            "Vestido",
+            "Perfume",
+            "Espejo",
+            "Mensaje",
+            "Vela",
+            "Llave",
+            "Foto",
+            "Sillon"
+          ], [
+            "con labial",
+            "en el piso",
+            "de hotel",
+            "a medianoche",
+            "prohibido",
+            "secreto",
+            "en la cama",
+            "con perfume",
+            "bajo la almohada",
+            "para dos"
+          ], 80),
+          "Lenceria",
+          "Preservativo",
+          "Lubricante",
+          "Portaligas",
+          "Corbata floja",
+          "Cama desordenada",
+          "Motel",
+          "Carta anonima",
+          "Labial rojo",
+          "Esposas de juguete",
+          "Playlist sensual",
+          "Ramo de flores",
+          "Anillo escondido",
+          "Camara indiscreta",
+          "Ducha caliente",
+          "Sabana de seda",
+          "Champan barato",
+          "Chocolates",
+          "Pijama prestado",
+          "Telefono bloqueado"
+        ]),
+        dificil: uniqueCards([
+          ...mixCards([
+            "Tension",
+            "Deseo",
+            "Verguenza",
+            "Quimica",
+            "Celos",
+            "Tentacion",
+            "Complicidad",
+            "Secreto",
+            "Fantasia",
+            "Impulso"
+          ], [
+            "sexual",
+            "reprimido",
+            "en publico",
+            "despues de una cita",
+            "sin palabras",
+            "a escondidas",
+            "entre exes",
+            "con culpa",
+            "irresistible",
+            "mal disimulado"
+          ], 80),
+          "Amor prohibido",
+          "Cita incomoda",
+          "Atraccion fatal",
+          "Noche inesperada",
+          "Momento de confianza",
+          "Secreto compartido",
+          "Declaracion torpe",
+          "Mensaje equivocado",
+          "Silencio incomodo",
+          "Mirada que delata",
+          "Plan cancelado",
+          "Reencuentro intenso",
+          "Promesa peligrosa",
+          "Despedida con beso",
+          "Confesion intima",
+          "Plan de escape",
+          "Malentendido caliente",
+          "Duda existencial",
+          "Excusa perfecta",
+          "Arrepentimiento tardio"
+        ]),
+        todos: uniqueCards([
+          ...mixCards([
+            "Primera",
+            "Ultima",
+            "Doble",
+            "Falsa",
+            "Secreta",
+            "Improvisada",
+            "Torpe",
+            "Elegante",
+            "Picante",
+            "Intensa"
+          ], [
+            "cita",
+            "noche de hotel",
+            "declaracion",
+            "fiesta privada",
+            "foto comprometida",
+            "cena romantica",
+            "escapada",
+            "reconciliacion",
+            "propuesta",
+            "mirada"
+          ], 80),
+          "Beso de pelicula",
+          "Noche de bodas",
+          "Secreto caliente",
+          "Confesion en la cocina",
+          "Mensaje que no era para vos",
+          "Baile prohibido",
+          "Cita en motel",
+          "Ropa en el pasillo",
+          "Vecinos escuchando",
+          "Ducha compartida",
+          "Plan para despues",
+          "Fiesta que se descontrolo",
+          "Foto con poca ropa",
+          "Regalo atrevido",
+          "Desayuno en la cama",
+          "Ascensor detenido",
+          "Apagon oportuno",
+          "Juego de prendas",
+          "Brindis peligroso",
+          "Pacto de silencio"
+        ])
+      };
+    }
+
+    function mixCards(leftParts, rightParts, limit) {
+      const cards = [];
+      for (const left of leftParts) {
+        for (const right of rightParts) {
+          cards.push(`${left} ${right}`);
+          if (cards.length >= limit) return cards;
+        }
+      }
+      return cards;
+    }
+
+    function uniqueCards(cards) {
+      return [...new Set(cards.map((card) => String(card).trim()).filter(Boolean))];
+    }
 
     const defaultConfig = {
       teamCount: 2,
@@ -1462,8 +1788,10 @@
       dom.brushSizeInput = document.getElementById("brushSizeInput");
       dom.drawCanvas = document.getElementById("drawCanvas");
       dom.clearCanvasButton = document.getElementById("clearCanvasButton");
+      dom.cardsFileInput = document.getElementById("cardsFileInput");
       dom.cardsInput = document.getElementById("cardsInput");
       dom.loadCardsButton = document.getElementById("loadCardsButton");
+      dom.loadFileCardsButton = document.getElementById("loadFileCardsButton");
       dom.restoreCardsButton = document.getElementById("restoreCardsButton");
       dom.cardsMessage = document.getElementById("cardsMessage");
       dom.logList = document.getElementById("logList");
@@ -1523,6 +1851,7 @@
       dom.resolveAllPlayButton.addEventListener("click", resolveAllPlay);
       dom.clearCanvasButton.addEventListener("click", clearCanvas);
       dom.loadCardsButton.addEventListener("click", importCards);
+      dom.loadFileCardsButton.addEventListener("click", importCardsFromFile);
       dom.restoreCardsButton.addEventListener("click", restoreDefaultCards);
       window.addEventListener("resize", debounce(resizeCanvas, 160));
     }
@@ -2124,15 +2453,42 @@
     function importCards() {
       try {
         const parsed = JSON.parse(dom.cardsInput.value);
-        cardPack = normalizeCardPack(parsed);
-        localStorage.setItem(CARDS_KEY, JSON.stringify(cardPack));
-        state.usedCards = {};
-        dom.cardsMessage.textContent = "Diccionario cargado y mazos reiniciados.";
-        renderAll();
-        persistState();
+        applyCardPack(parsed, "Diccionario cargado y mazos reiniciados.");
       } catch (error) {
         dom.cardsMessage.textContent = "JSON invalido. Revisa comillas, corchetes y claves.";
       }
+    }
+
+    function importCardsFromFile() {
+      const file = dom.cardsFileInput.files && dom.cardsFileInput.files[0];
+      if (!file) {
+        dom.cardsMessage.textContent = "Elegi primero un archivo JSON local.";
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const parsed = JSON.parse(String(reader.result || ""));
+          applyCardPack(parsed, `Mazo importado desde ${file.name}.`);
+        } catch (error) {
+          dom.cardsMessage.textContent = "El archivo no parece ser un JSON valido.";
+        }
+      };
+      reader.onerror = () => {
+        dom.cardsMessage.textContent = "No pude leer ese archivo.";
+      };
+      reader.readAsText(file, "utf-8");
+    }
+
+    function applyCardPack(pack, message) {
+      cardPack = normalizeCardPack(pack);
+      localStorage.setItem(CARDS_KEY, JSON.stringify(cardPack));
+      state.usedCards = {};
+      dom.cardsInput.value = JSON.stringify(cardPack, null, 2);
+      dom.cardsMessage.textContent = `${message} ${cardPackSummary(cardPack)}.`;
+      renderAll();
+      persistState();
     }
 
     function restoreDefaultCards() {
@@ -2140,9 +2496,15 @@
       localStorage.setItem(CARDS_KEY, JSON.stringify(cardPack));
       state.usedCards = {};
       dom.cardsInput.value = JSON.stringify(cardPack, null, 2);
-      dom.cardsMessage.textContent = "Ejemplo restaurado.";
+      dom.cardsMessage.textContent = `Mazo base restaurado. ${cardPackSummary(cardPack)}.`;
       renderAll();
       persistState();
+    }
+
+    function cardPackSummary(pack) {
+      return NORMAL_CATEGORY_IDS.concat("todos")
+        .map((categoryId) => `${categoryName(categoryId)}: ${(pack[categoryId] || []).length}`)
+        .join(" | ");
     }
 
     function renderAll() {
@@ -2173,29 +2535,44 @@
     }
 
     function renderBoard() {
-      const columns = state.config.boardSize === 35 ? 7 : state.config.boardSize === 45 ? 9 : 11;
-      const rows = Math.ceil(state.board.length / columns);
-      dom.boardGrid.style.setProperty("--board-cols", columns);
+      const layout = boardLayout(state.board.length);
+      dom.boardGrid.style.setProperty("--board-width", `${layout.width}px`);
+      dom.boardGrid.style.setProperty("--board-height", `${layout.height}px`);
       dom.boardGrid.innerHTML = "";
 
-      for (let visual = 0; visual < rows * columns; visual += 1) {
-        const row = Math.floor(visual / columns);
-        const col = visual % columns;
-        const boardIndex = row % 2 === 0 ? row * columns + col : row * columns + (columns - 1 - col);
-        if (boardIndex >= state.board.length) {
-          const blank = document.createElement("div");
-          blank.className = "space blank";
-          dom.boardGrid.appendChild(blank);
-          continue;
-        }
+      const path = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      path.setAttribute("class", "board-path");
+      path.setAttribute("viewBox", `0 0 ${layout.width} ${layout.height}`);
+      path.setAttribute("aria-hidden", "true");
 
-        const space = state.board[boardIndex];
+      const points = layout.positions.map((point) => `${point.cx},${point.cy}`).join(" ");
+      const shadowLine = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+      shadowLine.setAttribute("class", "board-path-line");
+      shadowLine.setAttribute("points", points);
+      const highlightLine = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+      highlightLine.setAttribute("class", "board-path-highlight");
+      highlightLine.setAttribute("points", points);
+      path.appendChild(shadowLine);
+      path.appendChild(highlightLine);
+      dom.boardGrid.appendChild(path);
+
+      state.board.forEach((space, boardIndex) => {
+        const point = layout.positions[boardIndex];
         const tokens = state.teams
           .map((team, index) => ({ team, index }))
           .filter((item) => item.team.position === boardIndex);
         const cell = document.createElement("div");
-        cell.className = `space${tokens.some((item) => item.index === state.currentTeam && state.started) ? " current" : ""}`;
+        const classes = ["space"];
+        if (space.kind === "start") classes.push("start");
+        if (space.kind === "finish") classes.push("finish");
+        if (tokens.some((item) => item.index === state.currentTeam && state.started)) classes.push("current");
+        cell.className = classes.join(" ");
         cell.style.setProperty("--space-color", space.color);
+        cell.style.setProperty("--space-size", `${layout.spaceSize}px`);
+        cell.style.setProperty("--space-x", `${point.x}px`);
+        cell.style.setProperty("--space-y", `${point.y}px`);
+        cell.style.setProperty("--space-tilt", `${point.tilt}deg`);
+        cell.style.setProperty("--space-delay", `${Math.min(boardIndex * 9, 420)}ms`);
         cell.innerHTML = `
           <div class="space-index">${boardIndex + 1}</div>
           <div class="space-label">${escapeHtml(space.short)}<span class="sr-only"> ${escapeHtml(space.label)}</span></div>
@@ -2204,7 +2581,41 @@
           </div>
         `;
         dom.boardGrid.appendChild(cell);
-      }
+      });
+    }
+
+    function boardLayout(size) {
+      const columns = size === 35 ? 7 : size === 45 ? 9 : 11;
+      const rows = Math.ceil(size / columns);
+      const spaceSize = size === 35 ? 78 : size === 45 ? 74 : 70;
+      const gapX = spaceSize + 22;
+      const gapY = spaceSize + 30;
+      const marginX = 42;
+      const marginY = 38;
+      const width = marginX * 2 + gapX * (columns - 1) + spaceSize + 28;
+      const height = marginY * 2 + gapY * (rows - 1) + spaceSize + 42;
+
+      const positions = Array.from({ length: size }, (_, index) => {
+        const row = Math.floor(index / columns);
+        const colInRow = index % columns;
+        const col = row % 2 === 0 ? colInRow : columns - 1 - colInRow;
+        const waveX = Math.sin((row + 1) * 0.9 + col * 0.45) * 9;
+        const waveY = Math.sin((col + 1) * 0.72) * 16;
+        const x = marginX + col * gapX + waveX;
+        const y = marginY + row * gapY + waveY;
+        const tilt = ((index % 5) - 2) * 2.4;
+        const visualSize = (index === 0 || index === size - 1) ? spaceSize + 12 : spaceSize;
+
+        return {
+          x,
+          y,
+          cx: x + visualSize / 2,
+          cy: y + visualSize / 2,
+          tilt
+        };
+      });
+
+      return { columns, rows, spaceSize, width, height, positions };
     }
 
     function renderLegend() {
