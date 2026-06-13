@@ -1,0 +1,2113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tablero Sexyonary</title>
+  <style>
+    :root {
+      --bg: #f4f1ec;
+      --surface: #fffdf8;
+      --surface-2: #f7f8fa;
+      --ink: #202124;
+      --muted: #667085;
+      --line: #d9dde3;
+      --line-strong: #aeb7c2;
+      --brand: #2f6f73;
+      --brand-dark: #1f4d50;
+      --danger: #b43d3d;
+      --ok: #2e7d5b;
+      --warning: #a96a13;
+      --shadow: 0 18px 42px rgba(21, 28, 36, 0.10);
+      --radius: 8px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+      color: var(--ink);
+      background:
+        linear-gradient(90deg, rgba(32, 33, 36, 0.035) 1px, transparent 1px) 0 0 / 28px 28px,
+        linear-gradient(180deg, #fffdf8 0%, var(--bg) 100%);
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      border-radius: var(--radius);
+      padding: 10px 13px;
+      background: var(--brand);
+      color: #fff;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 140ms ease, box-shadow 140ms ease, opacity 140ms ease;
+      box-shadow: 0 9px 20px rgba(47, 111, 115, 0.20);
+    }
+
+    button:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 24px rgba(47, 111, 115, 0.26);
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.48;
+      box-shadow: none;
+    }
+
+    button.secondary {
+      background: #eef1f3;
+      color: #263238;
+      box-shadow: none;
+      border: 1px solid var(--line);
+    }
+
+    button.danger {
+      background: var(--danger);
+      box-shadow: 0 9px 20px rgba(180, 61, 61, 0.18);
+    }
+
+    button.success {
+      background: var(--ok);
+      box-shadow: 0 9px 20px rgba(46, 125, 91, 0.18);
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+      color: #344054;
+      font-size: 0.78rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      min-width: 0;
+      border: 1px solid #cbd3dc;
+      border-radius: var(--radius);
+      background: #fff;
+      color: var(--ink);
+      padding: 10px 11px;
+      font-size: 0.96rem;
+      text-transform: none;
+      letter-spacing: 0;
+    }
+
+    textarea {
+      min-height: 160px;
+      resize: vertical;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.9rem;
+      line-height: 1.45;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin: 0;
+    }
+
+    .page {
+      width: min(1500px, 100%);
+      margin: 0 auto;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 18px;
+      margin-bottom: 18px;
+      padding: 18px 20px;
+      border: 1px solid rgba(174, 183, 194, 0.65);
+      border-radius: var(--radius);
+      background: rgba(255, 253, 248, 0.88);
+      box-shadow: var(--shadow);
+    }
+
+    .eyebrow {
+      margin-bottom: 4px;
+      color: var(--brand-dark);
+      font-size: 0.76rem;
+      font-weight: 900;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 5vw, 4.2rem);
+      line-height: 0.95;
+      letter-spacing: 0;
+    }
+
+    .status-strip {
+      display: grid;
+      gap: 8px;
+      min-width: min(380px, 100%);
+    }
+
+    .status-pill {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 9px 11px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      color: #30363d;
+      font-size: 0.92rem;
+      line-height: 1.35;
+    }
+
+    .status-pill strong {
+      color: var(--brand-dark);
+      white-space: nowrap;
+    }
+
+    .app-shell {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 430px;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel,
+    .board-shell {
+      border: 1px solid rgba(174, 183, 194, 0.72);
+      border-radius: var(--radius);
+      background: rgba(255, 253, 248, 0.95);
+      box-shadow: var(--shadow);
+    }
+
+    .board-shell {
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    .board-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 17px 18px;
+      border-bottom: 1px solid var(--line);
+      background: #fbfaf7;
+    }
+
+    .board-header h2,
+    .panel-title {
+      font-size: 1.05rem;
+      line-height: 1.2;
+    }
+
+    .board-header p,
+    .panel-subtitle {
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.38;
+    }
+
+    .board-stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(72px, 1fr));
+      gap: 8px;
+      min-width: 270px;
+    }
+
+    .stat-box {
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      text-align: center;
+    }
+
+    .stat-box span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .stat-box strong {
+      display: block;
+      margin-top: 2px;
+      font-size: 1.35rem;
+      line-height: 1;
+    }
+
+    .board-wrap {
+      overflow-x: auto;
+      padding: 16px;
+    }
+
+    .board-grid {
+      display: grid;
+      grid-template-columns: repeat(var(--board-cols), minmax(58px, 1fr));
+      gap: 8px;
+      min-width: 730px;
+    }
+
+    .space {
+      position: relative;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      align-items: stretch;
+      min-height: 82px;
+      aspect-ratio: 1 / 1;
+      padding: 7px;
+      border: 2px solid var(--space-color, var(--line));
+      border-radius: var(--radius);
+      background: color-mix(in srgb, var(--space-color, #fff) 14%, #ffffff);
+      overflow: hidden;
+    }
+
+    .space.current {
+      outline: 3px solid rgba(32, 33, 36, 0.16);
+      outline-offset: 2px;
+    }
+
+    .space.blank {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .space-index {
+      color: rgba(32, 33, 36, 0.58);
+      font-size: 0.68rem;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .space-label {
+      align-self: center;
+      color: #202124;
+      font-size: clamp(0.68rem, 1.2vw, 0.82rem);
+      font-weight: 900;
+      line-height: 1.05;
+      overflow-wrap: anywhere;
+      text-transform: uppercase;
+    }
+
+    .token-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 3px;
+      align-self: end;
+      min-height: 18px;
+    }
+
+    .team-token {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px;
+      height: 18px;
+      border: 2px solid #fff;
+      border-radius: 999px;
+      background: var(--team-color);
+      color: #fff;
+      font-size: 0.62rem;
+      font-weight: 900;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.22);
+    }
+
+    .legend {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(136px, 1fr));
+      gap: 8px;
+      padding: 0 16px 16px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+      color: #344054;
+      font-size: 0.84rem;
+      font-weight: 800;
+    }
+
+    .legend-swatch {
+      width: 16px;
+      height: 16px;
+      border: 2px solid var(--swatch-color);
+      border-radius: 4px;
+      background: color-mix(in srgb, var(--swatch-color) 20%, #fff);
+      flex: 0 0 auto;
+    }
+
+    .side-panel {
+      display: grid;
+      gap: 14px;
+      min-width: 0;
+    }
+
+    .panel {
+      padding: 16px;
+    }
+
+    .setup-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .span-2 {
+      grid-column: 1 / -1;
+    }
+
+    .check-row {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      color: #344054;
+      font-size: 0.92rem;
+      line-height: 1.32;
+    }
+
+    .check-row input {
+      width: 18px;
+      height: 18px;
+      padding: 0;
+      flex: 0 0 auto;
+    }
+
+    .teams-editor {
+      display: grid;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .team-editor {
+      display: grid;
+      grid-template-columns: 22px minmax(0, 1fr);
+      gap: 10px;
+      align-items: start;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+    }
+
+    .team-dot {
+      width: 18px;
+      height: 18px;
+      margin-top: 10px;
+      border-radius: 50%;
+      background: var(--team-color);
+      box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.72);
+    }
+
+    .team-fields {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 8px;
+    }
+
+    .team-fields label:first-child {
+      grid-column: 1 / -1;
+    }
+
+    .action-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .current-card {
+      display: grid;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .turn-box {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface-2);
+    }
+
+    .turn-box strong {
+      display: block;
+      color: var(--brand-dark);
+      font-size: 1.08rem;
+      overflow-wrap: anywhere;
+    }
+
+    .turn-box span {
+      display: block;
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.35;
+      overflow-wrap: anywhere;
+    }
+
+    .timer {
+      min-width: 88px;
+      padding: 10px;
+      border-radius: var(--radius);
+      background: #202124;
+      color: #fff;
+      text-align: center;
+      font-size: 1.45rem;
+      font-weight: 900;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .timer.warning {
+      background: var(--warning);
+    }
+
+    .timer.danger {
+      background: var(--danger);
+    }
+
+    .card-preview {
+      border: 1px solid var(--line);
+      border-left: 8px solid var(--card-color, var(--brand));
+      border-radius: var(--radius);
+      background: #fff;
+      overflow: hidden;
+    }
+
+    .card-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--line);
+      background: color-mix(in srgb, var(--card-color, var(--brand)) 12%, #ffffff);
+      color: #202124;
+      font-size: 0.82rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .card-word {
+      display: grid;
+      place-items: center;
+      min-height: 118px;
+      padding: 18px;
+      color: #111827;
+      font-size: clamp(1.25rem, 4vw, 2.05rem);
+      font-weight: 900;
+      line-height: 1.12;
+      text-align: center;
+      overflow-wrap: anywhere;
+    }
+
+    .card-word.hidden {
+      color: var(--muted);
+      font-size: 1rem;
+      font-weight: 800;
+    }
+
+    .wild-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .wild-grid button {
+      min-height: 44px;
+      background: var(--cat-color);
+    }
+
+    .all-play-box {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px;
+      align-items: end;
+      padding: 10px;
+      border: 1px solid #f0c7c7;
+      border-radius: var(--radius);
+      background: #fff6f6;
+    }
+
+    .scoreboard {
+      display: grid;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .team-score {
+      display: grid;
+      grid-template-columns: 22px minmax(0, 1fr) auto;
+      gap: 9px;
+      align-items: center;
+      padding: 9px 10px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+    }
+
+    .team-score.active {
+      border-color: var(--brand);
+      background: #f0f8f8;
+    }
+
+    .team-score strong {
+      display: block;
+      overflow-wrap: anywhere;
+    }
+
+    .team-score span {
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.25;
+    }
+
+    .position-badge {
+      min-width: 54px;
+      padding: 6px 8px;
+      border-radius: var(--radius);
+      background: #eef1f3;
+      text-align: center;
+      font-size: 0.82rem;
+      font-weight: 900;
+    }
+
+    .canvas-toolbar {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: end;
+      margin-top: 14px;
+    }
+
+    .swatches {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .swatch-button {
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      border: 2px solid #fff;
+      border-radius: 999px;
+      background: var(--paint-color);
+      box-shadow: 0 0 0 1px var(--line-strong);
+    }
+
+    .swatch-button.active {
+      box-shadow: 0 0 0 3px rgba(32, 33, 36, 0.18);
+    }
+
+    .draw-canvas {
+      display: block;
+      width: 100%;
+      height: 340px;
+      margin-top: 12px;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius);
+      background: #fff;
+      touch-action: none;
+    }
+
+    details.panel {
+      padding: 0;
+      overflow: hidden;
+    }
+
+    details.panel summary {
+      padding: 15px 16px;
+      cursor: pointer;
+      font-weight: 900;
+      list-style-position: inside;
+    }
+
+    .details-body {
+      padding: 0 16px 16px;
+      border-top: 1px solid var(--line);
+    }
+
+    .rules-list {
+      display: grid;
+      gap: 8px;
+      margin: 12px 0 0;
+      padding-left: 18px;
+      color: #344054;
+      line-height: 1.4;
+      font-size: 0.93rem;
+    }
+
+    .log-list {
+      display: grid;
+      gap: 8px;
+      max-height: 240px;
+      margin-top: 12px;
+      overflow: auto;
+    }
+
+    .log-entry {
+      padding: 9px 10px;
+      border-left: 4px solid var(--brand);
+      border-radius: 6px;
+      background: #fff;
+      color: #344054;
+      font-size: 0.88rem;
+      line-height: 1.35;
+    }
+
+    .muted-note {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 0.86rem;
+      line-height: 1.4;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    @media (max-width: 1180px) {
+      .app-shell {
+        grid-template-columns: 1fr;
+      }
+
+      .side-panel {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .panel,
+      details.panel {
+        min-width: 0;
+      }
+    }
+
+    @media (max-width: 820px) {
+      body {
+        padding: 12px;
+      }
+
+      .topbar,
+      .board-header {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .board-stats,
+      .side-panel,
+      .setup-grid,
+      .team-fields,
+      .wild-grid,
+      .all-play-box,
+      .canvas-toolbar {
+        grid-template-columns: 1fr;
+      }
+
+      .status-strip,
+      .board-stats {
+        min-width: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Tablero de juego</p>
+        <h1>Sexyonary</h1>
+      </div>
+      <div class="status-strip" aria-live="polite">
+        <div class="status-pill"><span id="gameStatus">Sin partida iniciada</span><strong id="phaseStatus">Setup</strong></div>
+        <div class="status-pill"><span id="turnStatus">Configura las parejas para empezar.</span><strong id="diceStatus">Dado -</strong></div>
+      </div>
+    </header>
+
+    <main class="app-shell">
+      <section class="board-shell" aria-labelledby="boardTitle">
+        <div class="board-header">
+          <div>
+            <h2 id="boardTitle">Recorrido</h2>
+            <p>Las fichas pueden compartir casilla. La salida usa prueba amarilla y la llegada se resuelve como todos juegan.</p>
+          </div>
+          <div class="board-stats">
+            <div class="stat-box"><span>Casillas</span><strong id="statSpaces">55</strong></div>
+            <div class="stat-box"><span>Equipos</span><strong id="statTeams">2</strong></div>
+            <div class="stat-box"><span>Turno</span><strong id="statTurn">-</strong></div>
+          </div>
+        </div>
+        <div class="board-wrap">
+          <div id="boardGrid" class="board-grid" aria-label="Tablero de Sexyonary"></div>
+        </div>
+        <div id="legend" class="legend"></div>
+      </section>
+
+      <aside class="side-panel">
+        <section class="panel" aria-labelledby="setupTitle">
+          <h2 id="setupTitle" class="panel-title">Configuracion</h2>
+          <p class="panel-subtitle">Parejas, tiempo, tablero y reglas opcionales.</p>
+
+          <div class="setup-grid">
+            <label>
+              Cantidad de parejas
+              <select id="teamCountInput"></select>
+            </label>
+            <label>
+              Tiempo por turno
+              <select id="timeLimitInput">
+                <option value="60">60 segundos</option>
+                <option value="90">90 segundos</option>
+                <option value="120">120 segundos</option>
+                <option value="180">180 segundos</option>
+              </select>
+            </label>
+            <label>
+              Casillas del tablero
+              <select id="boardSizeInput">
+                <option value="35">35 rapida</option>
+                <option value="45">45 media</option>
+                <option value="55">55 clasica</option>
+              </select>
+            </label>
+            <label>
+              Dado
+              <select id="diceSidesInput">
+                <option value="6">D6 normal</option>
+                <option value="8">D8 largo</option>
+              </select>
+            </label>
+            <label class="span-2">
+              Si nadie acierta
+              <select id="failTurnModeInput">
+                <option value="next">Pasa a la pareja de la derecha</option>
+                <option value="last">Pasa a la pareja mas atrasada</option>
+              </select>
+            </label>
+            <label class="check-row span-2">
+              <input id="startChallengeInput" type="checkbox">
+              Usar prueba de salida antes del primer dado.
+            </label>
+            <label class="check-row span-2">
+              <input id="retreatOnFailInput" type="checkbox">
+              Si fallan, retroceden lo avanzado con ese dado.
+            </label>
+          </div>
+
+          <div id="teamsEditor" class="teams-editor"></div>
+
+          <div class="action-row">
+            <button id="startGameButton" type="button">Iniciar partida</button>
+            <button id="saveSetupButton" class="secondary" type="button">Guardar config</button>
+            <button id="resetGameButton" class="danger" type="button">Reiniciar todo</button>
+          </div>
+        </section>
+
+        <section class="panel" aria-labelledby="turnTitle">
+          <h2 id="turnTitle" class="panel-title">Turno actual</h2>
+          <p class="panel-subtitle" id="turnSubtitle">La partida todavia no empezo.</p>
+
+          <div class="current-card">
+            <div class="turn-box">
+              <div>
+                <strong id="activeTeamName">Sin equipo</strong>
+                <span id="roleText">Dibujante y adivinador pendientes.</span>
+              </div>
+              <div id="timerDisplay" class="timer">--:--</div>
+            </div>
+
+            <div id="cardPreview" class="card-preview" style="--card-color:#2f6f73">
+              <div class="card-meta"><span id="cardCategory">Sin carta</span><span id="cardSpace">-</span></div>
+              <div id="cardWord" class="card-word hidden">Tira el dado o toma la prueba de salida.</div>
+            </div>
+
+            <div id="wildChoices" class="wild-grid" hidden></div>
+
+            <div id="allPlayBox" class="all-play-box" hidden>
+              <label>
+                Quien adivino
+                <select id="allPlayWinnerInput"></select>
+              </label>
+              <button id="resolveAllPlayButton" class="success" type="button">Resolver</button>
+            </div>
+
+            <div class="action-row">
+              <button id="startChallengeButton" type="button">Prueba de salida</button>
+              <button id="rollButton" type="button">Tirar dado</button>
+              <button id="showCardButton" class="secondary" type="button">Mostrar carta</button>
+              <button id="pauseTimerButton" class="secondary" type="button">Pausar</button>
+              <button id="correctButton" class="success" type="button">Acertaron</button>
+              <button id="failButton" class="danger" type="button">No acertaron</button>
+            </div>
+          </div>
+
+          <div id="scoreboard" class="scoreboard"></div>
+        </section>
+
+        <section class="panel" aria-labelledby="drawTitle">
+          <h2 id="drawTitle" class="panel-title">Pizarra rapida</h2>
+          <p class="panel-subtitle">Opcional, por si quieren jugar desde la misma pantalla.</p>
+          <div class="canvas-toolbar">
+            <label>
+              Color
+              <div id="paintSwatches" class="swatches" aria-label="Colores de dibujo"></div>
+            </label>
+            <label>
+              Trazo
+              <input id="brushSizeInput" type="range" min="2" max="24" value="5">
+            </label>
+          </div>
+          <canvas id="drawCanvas" class="draw-canvas" aria-label="Pizarra para dibujar"></canvas>
+          <div class="action-row">
+            <button id="clearCanvasButton" class="secondary" type="button">Limpiar pizarra</button>
+          </div>
+        </section>
+
+        <details class="panel" open>
+          <summary>Reglas cargadas</summary>
+          <div class="details-body">
+            <ol class="rules-list">
+              <li>Se juega por parejas o equipos: una persona dibuja y la otra adivina. El rol alterna despues de cada carta resuelta.</li>
+              <li>La prueba de salida usa la categoria amarilla. Al acertarla, esa pareja ya puede tirar el dado.</li>
+              <li>Al tirar el dado, la ficha avanza y la casilla define categoria. Si aciertan antes de que termine el tiempo, la misma pareja vuelve a tirar.</li>
+              <li>En todos juegan, todas las parejas pueden adivinar. La pareja que acierte gana el control del proximo turno.</li>
+              <li>En comodin, el dibujante elige una categoria normal antes de revelar la carta.</li>
+              <li>Para ganar, hay que llegar al final y acertar una ultima carta de todos juegan.</li>
+            </ol>
+          </div>
+        </details>
+
+        <details class="panel">
+          <summary>Diccionario de cartas</summary>
+          <div class="details-body">
+            <p class="muted-note">Pega aca un JSON con arrays por categoria. Claves esperadas: accion, persona, dificil, objeto, todos. El comodin reutiliza una de esas categorias.</p>
+            <textarea id="cardsInput" spellcheck="false"></textarea>
+            <div class="action-row">
+              <button id="loadCardsButton" type="button">Cargar diccionario</button>
+              <button id="restoreCardsButton" class="secondary" type="button">Restaurar ejemplo</button>
+            </div>
+            <p id="cardsMessage" class="muted-note" aria-live="polite"></p>
+          </div>
+        </details>
+
+        <section class="panel" aria-labelledby="logTitle">
+          <h2 id="logTitle" class="panel-title">Historial</h2>
+          <div id="logList" class="log-list"></div>
+        </section>
+      </aside>
+    </main>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "sexyonary-board-state-v1";
+    const CARDS_KEY = "sexyonary-card-pack-v1";
+
+    const TEAM_COLORS = [
+      "#d64b4b",
+      "#2f6fba",
+      "#2f9d68",
+      "#d8951f",
+      "#7b57c8",
+      "#cf4f8b",
+      "#287f83",
+      "#5f6f2f"
+    ];
+
+    const CATEGORIES = [
+      { id: "accion", name: "Accion", short: "A", color: "#ef7d36", kind: "normal" },
+      { id: "persona", name: "Persona/lugar", short: "P", color: "#f2c744", kind: "normal" },
+      { id: "dificil", name: "Dificil", short: "D", color: "#56a45d", kind: "normal" },
+      { id: "objeto", name: "Objeto", short: "O", color: "#3d82c4", kind: "normal" },
+      { id: "todos", name: "Todos juegan", short: "T", color: "#d84c4c", kind: "allPlay" },
+      { id: "comodin", name: "Comodin", short: "C", color: "#8a62c5", kind: "wild" }
+    ];
+
+    const CATEGORY_MAP = Object.fromEntries(CATEGORIES.map((category) => [category.id, category]));
+    const NORMAL_CATEGORY_IDS = CATEGORIES.filter((category) => category.kind === "normal").map((category) => category.id);
+    const BOARD_PATTERN = [
+      "accion",
+      "objeto",
+      "persona",
+      "dificil",
+      "todos",
+      "objeto",
+      "comodin",
+      "accion",
+      "persona",
+      "dificil",
+      "objeto",
+      "todos",
+      "accion",
+      "comodin",
+      "persona"
+    ];
+
+    // Reemplaza este objeto, o usa el importador de la pagina, cuando tengas el diccionario final.
+    const DEFAULT_CARD_PACK = {
+      accion: [
+        "Masaje improvisado",
+        "Bailar lento",
+        "Guinar el ojo",
+        "Hacer una serenata",
+        "Preparar una sorpresa",
+        "Pedir una cita"
+      ],
+      persona: [
+        "Cita a ciegas",
+        "Vecino curioso",
+        "Cupido distraido",
+        "Pareja de pelicula",
+        "Instructor de baile",
+        "Amor de verano"
+      ],
+      dificil: [
+        "Quimica",
+        "Verguenza ajena",
+        "Tension romantica",
+        "Malentendido",
+        "Confianza",
+        "Complicidad"
+      ],
+      objeto: [
+        "Perfume",
+        "Ramo de flores",
+        "Carta anonima",
+        "Anillo",
+        "Vela",
+        "Camisa elegante"
+      ],
+      todos: [
+        "Beso de pelicula",
+        "Cena romantica",
+        "Declaracion inesperada",
+        "Foto comprometida",
+        "Baile torpe",
+        "Mensaje secreto"
+      ]
+    };
+
+    const defaultConfig = {
+      teamCount: 2,
+      timeLimit: 120,
+      boardSize: 55,
+      diceSides: 6,
+      failTurnMode: "next",
+      startChallenge: true,
+      retreatOnFail: false
+    };
+
+    let cardPack = loadCardPack();
+    let state = loadState() || createInitialState(defaultConfig);
+    let timerInterval = null;
+    let paintColor = "#202124";
+    let isDrawing = false;
+    let canvasReady = false;
+
+    const dom = {};
+
+    document.addEventListener("DOMContentLoaded", () => {
+      bindDom();
+      initializeInputs();
+      bindEvents();
+      renderAll();
+      setupCanvas();
+    });
+
+    function bindDom() {
+      dom.gameStatus = document.getElementById("gameStatus");
+      dom.phaseStatus = document.getElementById("phaseStatus");
+      dom.turnStatus = document.getElementById("turnStatus");
+      dom.diceStatus = document.getElementById("diceStatus");
+      dom.statSpaces = document.getElementById("statSpaces");
+      dom.statTeams = document.getElementById("statTeams");
+      dom.statTurn = document.getElementById("statTurn");
+      dom.boardGrid = document.getElementById("boardGrid");
+      dom.legend = document.getElementById("legend");
+      dom.teamCountInput = document.getElementById("teamCountInput");
+      dom.timeLimitInput = document.getElementById("timeLimitInput");
+      dom.boardSizeInput = document.getElementById("boardSizeInput");
+      dom.diceSidesInput = document.getElementById("diceSidesInput");
+      dom.failTurnModeInput = document.getElementById("failTurnModeInput");
+      dom.startChallengeInput = document.getElementById("startChallengeInput");
+      dom.retreatOnFailInput = document.getElementById("retreatOnFailInput");
+      dom.teamsEditor = document.getElementById("teamsEditor");
+      dom.startGameButton = document.getElementById("startGameButton");
+      dom.saveSetupButton = document.getElementById("saveSetupButton");
+      dom.resetGameButton = document.getElementById("resetGameButton");
+      dom.turnSubtitle = document.getElementById("turnSubtitle");
+      dom.activeTeamName = document.getElementById("activeTeamName");
+      dom.roleText = document.getElementById("roleText");
+      dom.timerDisplay = document.getElementById("timerDisplay");
+      dom.cardPreview = document.getElementById("cardPreview");
+      dom.cardCategory = document.getElementById("cardCategory");
+      dom.cardSpace = document.getElementById("cardSpace");
+      dom.cardWord = document.getElementById("cardWord");
+      dom.wildChoices = document.getElementById("wildChoices");
+      dom.allPlayBox = document.getElementById("allPlayBox");
+      dom.allPlayWinnerInput = document.getElementById("allPlayWinnerInput");
+      dom.resolveAllPlayButton = document.getElementById("resolveAllPlayButton");
+      dom.startChallengeButton = document.getElementById("startChallengeButton");
+      dom.rollButton = document.getElementById("rollButton");
+      dom.showCardButton = document.getElementById("showCardButton");
+      dom.pauseTimerButton = document.getElementById("pauseTimerButton");
+      dom.correctButton = document.getElementById("correctButton");
+      dom.failButton = document.getElementById("failButton");
+      dom.scoreboard = document.getElementById("scoreboard");
+      dom.paintSwatches = document.getElementById("paintSwatches");
+      dom.brushSizeInput = document.getElementById("brushSizeInput");
+      dom.drawCanvas = document.getElementById("drawCanvas");
+      dom.clearCanvasButton = document.getElementById("clearCanvasButton");
+      dom.cardsInput = document.getElementById("cardsInput");
+      dom.loadCardsButton = document.getElementById("loadCardsButton");
+      dom.restoreCardsButton = document.getElementById("restoreCardsButton");
+      dom.cardsMessage = document.getElementById("cardsMessage");
+      dom.logList = document.getElementById("logList");
+    }
+
+    function initializeInputs() {
+      for (let count = 2; count <= 8; count += 1) {
+        const option = document.createElement("option");
+        option.value = String(count);
+        option.textContent = `${count} parejas`;
+        dom.teamCountInput.appendChild(option);
+      }
+      syncInputsFromState();
+      renderTeamEditors();
+      dom.cardsInput.value = JSON.stringify(cardPack, null, 2);
+    }
+
+    function bindEvents() {
+      dom.teamCountInput.addEventListener("change", () => {
+        const count = Number(dom.teamCountInput.value);
+        state.config.teamCount = count;
+        ensureTeamCount(count);
+        renderTeamEditors();
+        renderAll();
+        persistState();
+      });
+
+      [
+        dom.timeLimitInput,
+        dom.boardSizeInput,
+        dom.diceSidesInput,
+        dom.failTurnModeInput,
+        dom.startChallengeInput,
+        dom.retreatOnFailInput
+      ].forEach((input) => {
+        input.addEventListener("change", () => {
+          readConfigFromInputs();
+          if (!state.started) {
+            state.remaining = state.config.timeLimit;
+            state.board = buildBoard(state.config.boardSize);
+          }
+          renderAll();
+          persistState();
+        });
+      });
+
+      dom.startGameButton.addEventListener("click", startGame);
+      dom.saveSetupButton.addEventListener("click", saveTeamSetup);
+      dom.resetGameButton.addEventListener("click", resetGame);
+      dom.startChallengeButton.addEventListener("click", startOpeningChallenge);
+      dom.rollButton.addEventListener("click", rollDice);
+      dom.showCardButton.addEventListener("click", revealCard);
+      dom.pauseTimerButton.addEventListener("click", toggleTimer);
+      dom.correctButton.addEventListener("click", markCorrect);
+      dom.failButton.addEventListener("click", () => markFailed("No acertaron."));
+      dom.resolveAllPlayButton.addEventListener("click", resolveAllPlay);
+      dom.clearCanvasButton.addEventListener("click", clearCanvas);
+      dom.loadCardsButton.addEventListener("click", importCards);
+      dom.restoreCardsButton.addEventListener("click", restoreDefaultCards);
+      window.addEventListener("resize", debounce(resizeCanvas, 160));
+    }
+
+    function createInitialState(config) {
+      const normalizedConfig = { ...defaultConfig, ...config };
+      return {
+        started: false,
+        gameOver: false,
+        config: normalizedConfig,
+        teams: Array.from({ length: normalizedConfig.teamCount }, (_, index) => createTeam(index)),
+        board: buildBoard(normalizedConfig.boardSize),
+        currentTeam: 0,
+        phase: "setup",
+        remaining: normalizedConfig.timeLimit,
+        lastRoll: null,
+        lastMove: null,
+        currentCard: null,
+        usedCards: {},
+        log: []
+      };
+    }
+
+    function createTeam(index) {
+      return {
+        id: `team-${index + 1}`,
+        name: `Pareja ${index + 1}`,
+        members: [`Jugador ${index * 2 + 1}`, `Jugador ${index * 2 + 2}`],
+        drawerIndex: 0,
+        position: 0,
+        passedStart: false,
+        color: TEAM_COLORS[index % TEAM_COLORS.length]
+      };
+    }
+
+    function buildBoard(size) {
+      return Array.from({ length: size }, (_, index) => {
+        if (index === 0) {
+          return {
+            index,
+            categoryId: "persona",
+            label: "Salida",
+            short: "S",
+            color: CATEGORY_MAP.persona.color,
+            kind: "start"
+          };
+        }
+
+        if (index === size - 1) {
+          return {
+            index,
+            categoryId: "todos",
+            label: "Final",
+            short: "F",
+            color: CATEGORY_MAP.todos.color,
+            kind: "finish"
+          };
+        }
+
+        const categoryId = BOARD_PATTERN[(index - 1) % BOARD_PATTERN.length];
+        const category = CATEGORY_MAP[categoryId];
+        return {
+          index,
+          categoryId,
+          label: category.name,
+          short: category.short,
+          color: category.color,
+          kind: category.kind
+        };
+      });
+    }
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        const config = { ...defaultConfig, ...(parsed.config || {}) };
+        const loaded = {
+          ...createInitialState(config),
+          ...parsed,
+          config,
+          board: buildBoard(config.boardSize),
+          currentCard: parsed.currentCard || null,
+          usedCards: parsed.usedCards || {},
+          log: Array.isArray(parsed.log) ? parsed.log.slice(0, 40) : []
+        };
+        loaded.teams = normalizeTeams(parsed.teams, config.teamCount, config.boardSize);
+        loaded.remaining = clamp(Number(parsed.remaining) || config.timeLimit, 0, config.timeLimit);
+        return loaded;
+      } catch (error) {
+        console.error("No se pudo cargar el estado guardado:", error);
+        return null;
+      }
+    }
+
+    function persistState() {
+      try {
+        const snapshot = {
+          ...state,
+          timerRunning: false
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot));
+      } catch (error) {
+        console.error("No se pudo guardar el estado:", error);
+      }
+    }
+
+    function normalizeTeams(teams, count, boardSize) {
+      const result = Array.from({ length: count }, (_, index) => {
+        const fallback = createTeam(index);
+        const loaded = Array.isArray(teams) ? teams[index] : null;
+        return {
+          ...fallback,
+          ...(loaded || {}),
+          id: fallback.id,
+          name: String((loaded && loaded.name) || fallback.name),
+          members: [
+            String((loaded && loaded.members && loaded.members[0]) || fallback.members[0]),
+            String((loaded && loaded.members && loaded.members[1]) || fallback.members[1])
+          ],
+          drawerIndex: loaded && loaded.drawerIndex === 1 ? 1 : 0,
+          position: clamp(Number(loaded && loaded.position) || 0, 0, boardSize - 1),
+          passedStart: Boolean(loaded && loaded.passedStart),
+          color: TEAM_COLORS[index % TEAM_COLORS.length]
+        };
+      });
+      return result;
+    }
+
+    function loadCardPack() {
+      try {
+        const raw = localStorage.getItem(CARDS_KEY);
+        if (!raw) return cloneCardPack(DEFAULT_CARD_PACK);
+        return normalizeCardPack(JSON.parse(raw));
+      } catch (error) {
+        console.error("No se pudo cargar el mazo:", error);
+        return cloneCardPack(DEFAULT_CARD_PACK);
+      }
+    }
+
+    function normalizeCardPack(input) {
+      const normalized = {};
+      NORMAL_CATEGORY_IDS.concat("todos").forEach((categoryId) => {
+        const values = input && Array.isArray(input[categoryId]) ? input[categoryId] : DEFAULT_CARD_PACK[categoryId];
+        normalized[categoryId] = values.map((item) => String(item).trim()).filter(Boolean);
+      });
+      return normalized;
+    }
+
+    function cloneCardPack(pack) {
+      return normalizeCardPack(JSON.parse(JSON.stringify(pack)));
+    }
+
+    function syncInputsFromState() {
+      dom.teamCountInput.value = String(state.config.teamCount);
+      dom.timeLimitInput.value = String(state.config.timeLimit);
+      dom.boardSizeInput.value = String(state.config.boardSize);
+      dom.diceSidesInput.value = String(state.config.diceSides);
+      dom.failTurnModeInput.value = state.config.failTurnMode;
+      dom.startChallengeInput.checked = Boolean(state.config.startChallenge);
+      dom.retreatOnFailInput.checked = Boolean(state.config.retreatOnFail);
+    }
+
+    function readConfigFromInputs() {
+      state.config = {
+        teamCount: Number(dom.teamCountInput.value),
+        timeLimit: Number(dom.timeLimitInput.value),
+        boardSize: Number(dom.boardSizeInput.value),
+        diceSides: Number(dom.diceSidesInput.value),
+        failTurnMode: dom.failTurnModeInput.value,
+        startChallenge: dom.startChallengeInput.checked,
+        retreatOnFail: dom.retreatOnFailInput.checked
+      };
+      ensureTeamCount(state.config.teamCount);
+    }
+
+    function ensureTeamCount(count) {
+      while (state.teams.length < count) {
+        state.teams.push(createTeam(state.teams.length));
+      }
+      state.teams = state.teams.slice(0, count).map((team, index) => ({
+        ...createTeam(index),
+        ...team,
+        id: `team-${index + 1}`,
+        color: TEAM_COLORS[index % TEAM_COLORS.length],
+        position: clamp(Number(team.position) || 0, 0, state.config.boardSize - 1)
+      }));
+      state.currentTeam = clamp(state.currentTeam, 0, count - 1);
+    }
+
+    function renderTeamEditors() {
+      dom.teamsEditor.innerHTML = "";
+      state.teams.forEach((team, index) => {
+        const row = document.createElement("div");
+        row.className = "team-editor";
+        row.innerHTML = `
+          <div class="team-dot" style="--team-color:${team.color}"></div>
+          <div class="team-fields">
+            <label>
+              Nombre pareja ${index + 1}
+              <input data-team-field="name" data-team-index="${index}" value="${escapeAttr(team.name)}">
+            </label>
+            <label>
+              Integrante A
+              <input data-team-field="member0" data-team-index="${index}" value="${escapeAttr(team.members[0])}">
+            </label>
+            <label>
+              Integrante B
+              <input data-team-field="member1" data-team-index="${index}" value="${escapeAttr(team.members[1])}">
+            </label>
+          </div>
+        `;
+        dom.teamsEditor.appendChild(row);
+      });
+
+      dom.teamsEditor.querySelectorAll("input[data-team-index]").forEach((input) => {
+        input.addEventListener("input", () => {
+          const index = Number(input.dataset.teamIndex);
+          const field = input.dataset.teamField;
+          if (!state.teams[index]) return;
+          if (field === "name") state.teams[index].name = input.value.trim() || `Pareja ${index + 1}`;
+          if (field === "member0") state.teams[index].members[0] = input.value.trim() || `Jugador ${index * 2 + 1}`;
+          if (field === "member1") state.teams[index].members[1] = input.value.trim() || `Jugador ${index * 2 + 2}`;
+          renderStatus();
+          renderScoreboard();
+          persistState();
+        });
+      });
+    }
+
+    function saveTeamSetup() {
+      readConfigFromInputs();
+      state.board = buildBoard(state.config.boardSize);
+      state.remaining = state.started ? state.remaining : state.config.timeLimit;
+      addLog("Configuracion guardada.");
+      renderAll();
+      persistState();
+    }
+
+    function startGame() {
+      stopTimer();
+      readConfigFromInputs();
+      const configuredTeams = state.teams.map((team) => ({
+        name: team.name,
+        members: [...team.members]
+      }));
+      const starter = drawStarter(state.config.teamCount, state.config.diceSides);
+      state = createInitialState(state.config);
+      state.teams = state.teams.map((team, index) => ({
+        ...team,
+        name: configuredTeams[index] ? configuredTeams[index].name : team.name,
+        members: configuredTeams[index] ? configuredTeams[index].members : team.members
+      }));
+      state.currentTeam = starter.winner;
+      state.started = true;
+      state.phase = state.config.startChallenge ? "startChallenge" : "needRoll";
+      state.remaining = state.config.timeLimit;
+      state.log = [];
+      addLog(`Sorteo inicial: ${starter.rolls.map((roll, index) => `${state.teams[index].name} ${roll}`).join(", ")}. Arranca ${state.teams[starter.winner].name}.`);
+      renderTeamEditors();
+      renderAll();
+      persistState();
+    }
+
+    function drawStarter(count, diceSides) {
+      let rolls = [];
+      let winner = 0;
+      let attempts = 0;
+      do {
+        attempts += 1;
+        rolls = Array.from({ length: count }, () => randomInt(1, diceSides));
+        const maxRoll = Math.max(...rolls);
+        const winners = rolls.map((roll, index) => roll === maxRoll ? index : -1).filter((index) => index >= 0);
+        if (winners.length === 1 || attempts > 20) {
+          winner = winners[0];
+          break;
+        }
+      } while (true);
+      return { rolls, winner };
+    }
+
+    function resetGame() {
+      const ok = window.confirm("Reiniciar la partida y borrar el estado guardado?");
+      if (!ok) return;
+      stopTimer();
+      localStorage.removeItem(STORAGE_KEY);
+      state = createInitialState(defaultConfig);
+      syncInputsFromState();
+      renderTeamEditors();
+      renderAll();
+      persistState();
+    }
+
+    function startOpeningChallenge() {
+      if (!state.started || state.phase !== "startChallenge") return;
+      const category = CATEGORY_MAP.persona;
+      state.lastRoll = null;
+      state.lastMove = null;
+      state.currentCard = createCard("persona", {
+        sourceLabel: "Salida",
+        startChallenge: true,
+        allPlay: false,
+        finalChallenge: false,
+        hidden: true
+      });
+      state.phase = "drawing";
+      startTimerIfNeeded();
+      addLog(`${activeTeam().name} toma la prueba de salida.`);
+      renderAll();
+      persistState();
+    }
+
+    function rollDice() {
+      if (!canRoll()) return;
+      const team = activeTeam();
+      const roll = randomInt(1, state.config.diceSides);
+      const from = team.position;
+      const to = clamp(from + roll, 0, state.board.length - 1);
+      team.position = to;
+      state.lastRoll = roll;
+      state.lastMove = { teamIndex: state.currentTeam, from, to, roll };
+      const space = state.board[to];
+      addLog(`${team.name} saco ${roll} y avanzo de ${from + 1} a ${to + 1}: ${space.label}.`);
+
+      if (space.kind === "wild") {
+        state.phase = "chooseWild";
+        state.currentCard = {
+          categoryId: "comodin",
+          sourceLabel: "Comodin",
+          text: "",
+          hidden: true,
+          allPlay: false,
+          finalChallenge: false,
+          startChallenge: false
+        };
+      } else {
+        const categoryId = space.kind === "finish" ? "todos" : space.categoryId;
+        state.currentCard = createCard(categoryId, {
+          sourceLabel: space.label,
+          startChallenge: false,
+          allPlay: categoryId === "todos",
+          finalChallenge: space.kind === "finish",
+          hidden: true
+        });
+        state.phase = "drawing";
+        startTimerIfNeeded();
+      }
+
+      renderAll();
+      persistState();
+    }
+
+    function chooseWildCategory(categoryId) {
+      if (state.phase !== "chooseWild") return;
+      const category = CATEGORY_MAP[categoryId];
+      state.currentCard = createCard(categoryId, {
+        sourceLabel: `Comodin: ${category.name}`,
+        startChallenge: false,
+        allPlay: false,
+        finalChallenge: false,
+        hidden: true
+      });
+      state.phase = "drawing";
+      startTimerIfNeeded();
+      addLog(`${activeTeam().name} eligio ${category.name} en comodin.`);
+      renderAll();
+      persistState();
+    }
+
+    function createCard(categoryId, options) {
+      const category = CATEGORY_MAP[categoryId] || CATEGORY_MAP.accion;
+      return {
+        categoryId,
+        sourceLabel: options.sourceLabel || category.name,
+        text: drawCardText(categoryId),
+        hidden: options.hidden !== false,
+        allPlay: Boolean(options.allPlay),
+        finalChallenge: Boolean(options.finalChallenge),
+        startChallenge: Boolean(options.startChallenge)
+      };
+    }
+
+    function drawCardText(categoryId) {
+      const deck = Array.isArray(cardPack[categoryId]) ? cardPack[categoryId] : [];
+      if (deck.length === 0) return `[${categoryName(categoryId)}] Carta pendiente`;
+      if (!Array.isArray(state.usedCards[categoryId])) state.usedCards[categoryId] = [];
+      if (state.usedCards[categoryId].length >= deck.length) state.usedCards[categoryId] = [];
+      const available = deck.map((_, index) => index).filter((index) => !state.usedCards[categoryId].includes(index));
+      const cardIndex = available[randomInt(0, available.length - 1)];
+      state.usedCards[categoryId].push(cardIndex);
+      return deck[cardIndex];
+    }
+
+    function revealCard() {
+      if (!state.currentCard || state.phase !== "drawing") return;
+      state.currentCard.hidden = !state.currentCard.hidden;
+      renderCard();
+      persistState();
+    }
+
+    function markCorrect() {
+      if (!state.started || state.phase !== "drawing" || !state.currentCard) return;
+      if (state.currentCard.allPlay) return;
+
+      const team = activeTeam();
+      if (state.currentCard.finalChallenge) {
+        finishGame(state.currentTeam);
+        return;
+      }
+
+      if (state.currentCard.startChallenge) {
+        team.passedStart = true;
+        addLog(`${team.name} supero la salida. Puede tirar dado mientras quede tiempo.`);
+      } else {
+        addLog(`${team.name} acerto. Vuelve a tirar si queda tiempo.`);
+      }
+
+      rotateDrawer(team);
+      state.currentCard = null;
+      state.lastMove = null;
+      state.phase = state.remaining > 0 ? "needRoll" : "needPass";
+      if (state.remaining <= 0) passTurn("Se termino el tiempo.");
+      renderAll();
+      persistState();
+    }
+
+    function markFailed(reason) {
+      if (!state.started || state.gameOver) return;
+      const team = activeTeam();
+
+      if (state.config.retreatOnFail && state.lastMove && state.lastMove.teamIndex === state.currentTeam) {
+        team.position = state.lastMove.from;
+        addLog(`${team.name} retrocede a la casilla ${team.position + 1}.`);
+      }
+
+      addLog(`${team.name} pierde el turno. ${reason}`);
+      rotateDrawer(team);
+      stopTimer();
+      const nextTeam = nextTeamAfterFailure();
+      startTurn(nextTeam);
+      renderAll();
+      persistState();
+    }
+
+    function resolveAllPlay() {
+      if (!state.currentCard || !state.currentCard.allPlay) return;
+      const value = dom.allPlayWinnerInput.value;
+
+      if (value === "none") {
+        if (state.config.retreatOnFail && state.lastMove && state.lastMove.teamIndex === state.currentTeam) {
+          activeTeam().position = state.lastMove.from;
+          addLog(`${activeTeam().name} retrocede a la casilla ${activeTeam().position + 1}.`);
+        }
+        addLog("Nadie acerto en todos juegan.");
+        rotateDrawer(activeTeam());
+        stopTimer();
+        startTurn(nextClockwiseTeam(state.currentTeam));
+        renderAll();
+        persistState();
+        return;
+      }
+
+      const winnerIndex = Number(value);
+      const winner = state.teams[winnerIndex];
+      if (!winner) return;
+
+      if (state.currentCard.finalChallenge && winnerIndex === state.currentTeam) {
+        finishGame(winnerIndex);
+        return;
+      }
+
+      if (winnerIndex === state.currentTeam && state.remaining > 0) {
+        addLog(`${winner.name} gano todos juegan. Vuelve a tirar si queda tiempo.`);
+        rotateDrawer(activeTeam());
+        state.currentCard = null;
+        state.lastMove = null;
+        state.phase = "needRoll";
+      } else {
+        addLog(`${winner.name} gano todos juegan y toma el control.`);
+        rotateDrawer(activeTeam());
+        stopTimer();
+        startTurn(winnerIndex);
+      }
+      renderAll();
+      persistState();
+    }
+
+    function finishGame(winnerIndex) {
+      const winner = state.teams[winnerIndex];
+      state.gameOver = true;
+      state.phase = "gameOver";
+      state.currentCard = null;
+      stopTimer();
+      addLog(`${winner.name} gano la partida.`);
+      renderAll();
+      persistState();
+    }
+
+    function startTurn(teamIndex) {
+      state.currentTeam = clamp(teamIndex, 0, state.teams.length - 1);
+      state.remaining = state.config.timeLimit;
+      state.currentCard = null;
+      state.lastRoll = null;
+      state.lastMove = null;
+      const team = activeTeam();
+      if (state.config.startChallenge && !team.passedStart) {
+        state.phase = "startChallenge";
+      } else {
+        state.phase = "needRoll";
+      }
+      addLog(`Turno de ${team.name}.`);
+    }
+
+    function nextTeamAfterFailure() {
+      if (state.config.failTurnMode !== "last" || state.teams.length <= 2) {
+        return nextClockwiseTeam(state.currentTeam);
+      }
+
+      const candidates = state.teams
+        .map((team, index) => ({ team, index }))
+        .filter((item) => item.index !== state.currentTeam);
+      const minPosition = Math.min(...candidates.map((item) => item.team.position));
+      const tied = candidates.filter((item) => item.team.position === minPosition).map((item) => item.index);
+      for (let offset = 1; offset <= state.teams.length; offset += 1) {
+        const index = (state.currentTeam + offset) % state.teams.length;
+        if (tied.includes(index)) return index;
+      }
+      return tied[0];
+    }
+
+    function nextClockwiseTeam(index) {
+      return (index + 1) % state.teams.length;
+    }
+
+    function rotateDrawer(team) {
+      team.drawerIndex = team.drawerIndex === 0 ? 1 : 0;
+    }
+
+    function canRoll() {
+      return state.started && !state.gameOver && (state.phase === "needRoll") && (!state.config.startChallenge || activeTeam().passedStart || activeTeam().position > 0);
+    }
+
+    function startTimerIfNeeded() {
+      if (state.remaining <= 0) state.remaining = state.config.timeLimit;
+      if (!timerInterval) {
+        timerInterval = window.setInterval(tickTimer, 1000);
+      }
+    }
+
+    function stopTimer() {
+      if (timerInterval) {
+        window.clearInterval(timerInterval);
+        timerInterval = null;
+      }
+    }
+
+    function toggleTimer() {
+      if (!state.started || state.gameOver || state.phase !== "drawing") return;
+      if (timerInterval) {
+        stopTimer();
+      } else {
+        startTimerIfNeeded();
+      }
+      renderControls();
+    }
+
+    function tickTimer() {
+      const timerPhases = ["drawing", "needRoll", "chooseWild"];
+      if (!state.started || state.gameOver || !timerPhases.includes(state.phase)) {
+        stopTimer();
+        return;
+      }
+      state.remaining = Math.max(0, state.remaining - 1);
+      renderTimer();
+      persistState();
+      if (state.remaining <= 0) {
+        stopTimer();
+        if (state.currentCard && state.currentCard.allPlay) {
+          renderControls();
+          addLog("Tiempo agotado en todos juegan. Resolver quien acerto o marcar nadie.");
+          persistState();
+        } else if (state.phase === "drawing") {
+          markFailed("Se termino el tiempo.");
+        } else {
+          addLog(`${activeTeam().name} termina el turno. Se termino el tiempo.`);
+          startTurn(nextTeamAfterFailure());
+          renderAll();
+          persistState();
+        }
+      }
+    }
+
+    function importCards() {
+      try {
+        const parsed = JSON.parse(dom.cardsInput.value);
+        cardPack = normalizeCardPack(parsed);
+        localStorage.setItem(CARDS_KEY, JSON.stringify(cardPack));
+        state.usedCards = {};
+        dom.cardsMessage.textContent = "Diccionario cargado y mazos reiniciados.";
+        renderAll();
+        persistState();
+      } catch (error) {
+        dom.cardsMessage.textContent = "JSON invalido. Revisa comillas, corchetes y claves.";
+      }
+    }
+
+    function restoreDefaultCards() {
+      cardPack = cloneCardPack(DEFAULT_CARD_PACK);
+      localStorage.setItem(CARDS_KEY, JSON.stringify(cardPack));
+      state.usedCards = {};
+      dom.cardsInput.value = JSON.stringify(cardPack, null, 2);
+      dom.cardsMessage.textContent = "Ejemplo restaurado.";
+      renderAll();
+      persistState();
+    }
+
+    function renderAll() {
+      syncInputsFromState();
+      renderStatus();
+      renderBoard();
+      renderLegend();
+      renderTurn();
+      renderCard();
+      renderWildChoices();
+      renderAllPlayOptions();
+      renderControls();
+      renderScoreboard();
+      renderLog();
+    }
+
+    function renderStatus() {
+      const team = activeTeam();
+      dom.statSpaces.textContent = String(state.config.boardSize);
+      dom.statTeams.textContent = String(state.teams.length);
+      dom.statTurn.textContent = state.started ? String(state.currentTeam + 1) : "-";
+      dom.gameStatus.textContent = state.gameOver ? "Partida terminada" : state.started ? "Partida en curso" : "Sin partida iniciada";
+      dom.phaseStatus.textContent = phaseLabel();
+      dom.turnStatus.textContent = state.started ? `${team.name}: casilla ${team.position + 1}` : "Configura las parejas para empezar.";
+      dom.diceStatus.textContent = state.lastRoll ? `Dado ${state.lastRoll}` : `D${state.config.diceSides}`;
+    }
+
+    function renderBoard() {
+      const columns = state.config.boardSize === 35 ? 7 : state.config.boardSize === 45 ? 9 : 11;
+      const rows = Math.ceil(state.board.length / columns);
+      dom.boardGrid.style.setProperty("--board-cols", columns);
+      dom.boardGrid.innerHTML = "";
+
+      for (let visual = 0; visual < rows * columns; visual += 1) {
+        const row = Math.floor(visual / columns);
+        const col = visual % columns;
+        const boardIndex = row % 2 === 0 ? row * columns + col : row * columns + (columns - 1 - col);
+        if (boardIndex >= state.board.length) {
+          const blank = document.createElement("div");
+          blank.className = "space blank";
+          dom.boardGrid.appendChild(blank);
+          continue;
+        }
+
+        const space = state.board[boardIndex];
+        const tokens = state.teams
+          .map((team, index) => ({ team, index }))
+          .filter((item) => item.team.position === boardIndex);
+        const cell = document.createElement("div");
+        cell.className = `space${tokens.some((item) => item.index === state.currentTeam && state.started) ? " current" : ""}`;
+        cell.style.setProperty("--space-color", space.color);
+        cell.innerHTML = `
+          <div class="space-index">${boardIndex + 1}</div>
+          <div class="space-label">${escapeHtml(space.short)}<span class="sr-only"> ${escapeHtml(space.label)}</span></div>
+          <div class="token-row">
+            ${tokens.map((item) => `<span class="team-token" style="--team-color:${item.team.color}" title="${escapeAttr(item.team.name)}">${item.index + 1}</span>`).join("")}
+          </div>
+        `;
+        dom.boardGrid.appendChild(cell);
+      }
+    }
+
+    function renderLegend() {
+      dom.legend.innerHTML = CATEGORIES.map((category) => `
+        <div class="legend-item">
+          <span class="legend-swatch" style="--swatch-color:${category.color}"></span>
+          <span>${escapeHtml(category.name)}</span>
+        </div>
+      `).join("");
+    }
+
+    function renderTurn() {
+      const team = activeTeam();
+      dom.activeTeamName.textContent = team ? team.name : "Sin equipo";
+
+      if (!state.started) {
+        dom.turnSubtitle.textContent = "La partida todavia no empezo.";
+        dom.roleText.textContent = "Dibujante y adivinador pendientes.";
+      } else if (state.gameOver) {
+        dom.turnSubtitle.textContent = "Ya hay una pareja ganadora.";
+        dom.roleText.textContent = "Reinicia si queres jugar de nuevo.";
+      } else {
+        const drawer = team.members[team.drawerIndex];
+        const guesser = team.members[team.drawerIndex === 0 ? 1 : 0];
+        dom.turnSubtitle.textContent = phaseHelpText();
+        dom.roleText.textContent = `Dibuja: ${drawer}. Adivina: ${guesser}.`;
+      }
+
+      renderTimer();
+    }
+
+    function renderTimer() {
+      const seconds = clamp(state.remaining, 0, state.config.timeLimit);
+      const minutes = Math.floor(seconds / 60);
+      const rest = seconds % 60;
+      dom.timerDisplay.textContent = `${String(minutes).padStart(2, "0")}:${String(rest).padStart(2, "0")}`;
+      dom.timerDisplay.classList.toggle("warning", seconds > 0 && seconds <= 30);
+      dom.timerDisplay.classList.toggle("danger", seconds > 0 && seconds <= 10);
+      if (!state.started) dom.timerDisplay.textContent = "--:--";
+    }
+
+    function renderCard() {
+      const card = state.currentCard;
+      if (!card) {
+        dom.cardPreview.style.setProperty("--card-color", "#2f6f73");
+        dom.cardCategory.textContent = "Sin carta";
+        dom.cardSpace.textContent = "-";
+        dom.cardWord.textContent = state.started ? phaseHelpText() : "Tira el dado o toma la prueba de salida.";
+        dom.cardWord.classList.add("hidden");
+        return;
+      }
+
+      const category = CATEGORY_MAP[card.categoryId] || CATEGORY_MAP.accion;
+      dom.cardPreview.style.setProperty("--card-color", category.color);
+      dom.cardCategory.textContent = category.name;
+      dom.cardSpace.textContent = card.finalChallenge ? "Final" : card.sourceLabel;
+      dom.cardWord.textContent = card.hidden ? "Carta oculta. Mostrar solo al dibujante." : card.text;
+      dom.cardWord.classList.toggle("hidden", card.hidden);
+    }
+
+    function renderWildChoices() {
+      dom.wildChoices.hidden = state.phase !== "chooseWild";
+      if (dom.wildChoices.hidden) return;
+      dom.wildChoices.innerHTML = NORMAL_CATEGORY_IDS.map((categoryId) => {
+        const category = CATEGORY_MAP[categoryId];
+        return `<button type="button" data-wild-category="${category.id}" style="--cat-color:${category.color}">${category.name}</button>`;
+      }).join("");
+      dom.wildChoices.querySelectorAll("button").forEach((button) => {
+        button.addEventListener("click", () => chooseWildCategory(button.dataset.wildCategory));
+      });
+    }
+
+    function renderAllPlayOptions() {
+      const isAllPlay = Boolean(state.currentCard && state.currentCard.allPlay && state.phase === "drawing");
+      dom.allPlayBox.hidden = !isAllPlay;
+      if (!isAllPlay) return;
+      dom.allPlayWinnerInput.innerHTML = `<option value="none">Nadie</option>` + state.teams.map((team, index) => {
+        const label = index === state.currentTeam ? `${team.name} (activa)` : team.name;
+        return `<option value="${index}">${escapeHtml(label)}</option>`;
+      }).join("");
+    }
+
+    function renderControls() {
+      const hasCard = Boolean(state.currentCard);
+      const isDrawing = state.phase === "drawing";
+      const isAllPlay = Boolean(hasCard && state.currentCard.allPlay);
+
+      dom.startChallengeButton.disabled = !(state.started && state.phase === "startChallenge" && !state.gameOver);
+      dom.rollButton.disabled = !canRoll();
+      dom.showCardButton.disabled = !(hasCard && isDrawing && !state.gameOver);
+      dom.showCardButton.textContent = hasCard && !state.currentCard.hidden ? "Ocultar carta" : "Mostrar carta";
+      dom.pauseTimerButton.disabled = !canControlTimer();
+      dom.pauseTimerButton.textContent = timerInterval ? "Pausar" : "Reanudar";
+      dom.correctButton.disabled = !(state.started && isDrawing && !isAllPlay && !state.gameOver);
+      dom.failButton.disabled = !(state.started && isDrawing && !state.gameOver);
+      dom.resolveAllPlayButton.disabled = !(state.started && isDrawing && isAllPlay && !state.gameOver);
+    }
+
+    function canControlTimer() {
+      const timerPhases = ["drawing", "needRoll", "chooseWild"];
+      return state.started
+        && !state.gameOver
+        && timerPhases.includes(state.phase)
+        && (Boolean(timerInterval) || state.remaining < state.config.timeLimit || Boolean(state.currentCard));
+    }
+
+    function renderScoreboard() {
+      dom.scoreboard.innerHTML = state.teams.map((team, index) => {
+        const drawer = team.members[team.drawerIndex];
+        const guesser = team.members[team.drawerIndex === 0 ? 1 : 0];
+        return `
+          <div class="team-score${index === state.currentTeam && state.started ? " active" : ""}">
+            <span class="team-token" style="--team-color:${team.color}">${index + 1}</span>
+            <div>
+              <strong>${escapeHtml(team.name)}</strong>
+              <span>Dibuja ${escapeHtml(drawer)} / Adivina ${escapeHtml(guesser)}</span>
+            </div>
+            <div class="position-badge">${team.position + 1}/${state.board.length}</div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderLog() {
+      if (!state.log.length) {
+        dom.logList.innerHTML = `<div class="log-entry">Todavia no hay movimientos.</div>`;
+        return;
+      }
+      dom.logList.innerHTML = state.log.slice(0, 18).map((entry) => `<div class="log-entry">${escapeHtml(entry)}</div>`).join("");
+    }
+
+    function phaseLabel() {
+      if (state.gameOver) return "Fin";
+      if (!state.started) return "Setup";
+      if (state.phase === "startChallenge") return "Salida";
+      if (state.phase === "needRoll") return "Dado";
+      if (state.phase === "chooseWild") return "Comodin";
+      if (state.phase === "drawing") return "Dibujo";
+      return "Turno";
+    }
+
+    function phaseHelpText() {
+      if (!state.started) return "Inicia la partida para sortear quien sale.";
+      if (state.gameOver) return "Partida terminada.";
+      if (state.phase === "startChallenge") return "Toma la prueba de salida antes de tirar el dado.";
+      if (state.phase === "needRoll") return "Tira el dado para avanzar.";
+      if (state.phase === "chooseWild") return "Elige la categoria del comodin.";
+      if (state.phase === "drawing" && state.currentCard && state.currentCard.allPlay) return "Todos juegan: resolver quien adivino.";
+      if (state.phase === "drawing") return "Dibuja sin hablar, sin letras y sin numeros.";
+      return "Listo para continuar.";
+    }
+
+    function activeTeam() {
+      return state.teams[state.currentTeam] || state.teams[0] || createTeam(0);
+    }
+
+    function categoryName(categoryId) {
+      return CATEGORY_MAP[categoryId] ? CATEGORY_MAP[categoryId].name : categoryId;
+    }
+
+    function addLog(message) {
+      const stamp = new Date().toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit" });
+      state.log = [`${stamp} - ${message}`, ...(state.log || [])].slice(0, 40);
+    }
+
+    function randomInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function clamp(value, min, max) {
+      return Math.min(Math.max(value, min), max);
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function escapeAttr(value) {
+      return escapeHtml(value).replace(/`/g, "&#96;");
+    }
+
+    function debounce(fn, wait) {
+      let timeout = null;
+      return (...args) => {
+        window.clearTimeout(timeout);
+        timeout = window.setTimeout(() => fn(...args), wait);
+      };
+    }
+
+    function setupCanvas() {
+      const colors = ["#202124", "#d64b4b", "#2f6fba", "#2f9d68", "#d8951f", "#7b57c8"];
+      dom.paintSwatches.innerHTML = colors.map((color, index) => `
+        <button class="swatch-button${index === 0 ? " active" : ""}" type="button" style="--paint-color:${color}" data-color="${color}" aria-label="Color ${index + 1}"></button>
+      `).join("");
+
+      dom.paintSwatches.querySelectorAll("button").forEach((button) => {
+        button.addEventListener("click", () => {
+          paintColor = button.dataset.color;
+          dom.paintSwatches.querySelectorAll("button").forEach((item) => item.classList.remove("active"));
+          button.classList.add("active");
+        });
+      });
+
+      resizeCanvas();
+      const canvas = dom.drawCanvas;
+      canvas.addEventListener("pointerdown", startDraw);
+      canvas.addEventListener("pointermove", drawMove);
+      canvas.addEventListener("pointerup", endDraw);
+      canvas.addEventListener("pointerleave", endDraw);
+      canvasReady = true;
+    }
+
+    function resizeCanvas() {
+      if (!dom.drawCanvas) return;
+      const canvas = dom.drawCanvas;
+      const rect = canvas.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      const previous = document.createElement("canvas");
+      previous.width = canvas.width;
+      previous.height = canvas.height;
+      const previousContext = previous.getContext("2d");
+      if (canvas.width && canvas.height) previousContext.drawImage(canvas, 0, 0);
+
+      canvas.width = Math.max(1, Math.floor(rect.width * dpr));
+      canvas.height = Math.max(1, Math.floor(rect.height * dpr));
+      const ctx = canvas.getContext("2d");
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, rect.width, rect.height);
+      if (previous.width && previous.height && canvasReady) {
+        ctx.drawImage(previous, 0, 0, previous.width / dpr, previous.height / dpr, 0, 0, rect.width, rect.height);
+      }
+    }
+
+    function startDraw(event) {
+      isDrawing = true;
+      const ctx = dom.drawCanvas.getContext("2d");
+      const point = canvasPoint(event);
+      ctx.beginPath();
+      ctx.moveTo(point.x, point.y);
+      event.preventDefault();
+    }
+
+    function drawMove(event) {
+      if (!isDrawing) return;
+      const ctx = dom.drawCanvas.getContext("2d");
+      const point = canvasPoint(event);
+      ctx.strokeStyle = paintColor;
+      ctx.lineWidth = Number(dom.brushSizeInput.value);
+      ctx.lineTo(point.x, point.y);
+      ctx.stroke();
+      event.preventDefault();
+    }
+
+    function endDraw() {
+      isDrawing = false;
+    }
+
+    function canvasPoint(event) {
+      const rect = dom.drawCanvas.getBoundingClientRect();
+      return {
+        x: event.clientX - rect.left,
+        y: event.clientY - rect.top
+      };
+    }
+
+    function clearCanvas() {
+      const canvas = dom.drawCanvas;
+      const rect = canvas.getBoundingClientRect();
+      const ctx = canvas.getContext("2d");
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, rect.width, rect.height);
+    }
+  </script>
+</body>
+</html>
