@@ -1,0 +1,44 @@
+{
+  "telegrapho": {
+    "label": "Pedra do Telégrafo",
+    "kind": "Uber / tour + trilha",
+    "distance": 47.5,
+    "minutes": 52,
+    "file": "assets/maps/regional-telegrapho.svg"
+  },
+  "arraial": {
+    "label": "Arraial do Cabo",
+    "kind": "Transfer / tour",
+    "distance": 171.8,
+    "minutes": 162,
+    "file": "assets/maps/regional-arraial.svg"
+  },
+  "pontal_diy": {
+    "label": "Praia dos Anjos · Arraial",
+    "kind": "Bus / tour + lancha",
+    "distance": 171.2,
+    "minutes": 160,
+    "file": "assets/maps/regional-pontal_diy.svg"
+  },
+  "ilha_grande": {
+    "label": "Vila do Abraão · Ilha Grande",
+    "kind": "Transfer + barco",
+    "distance": 222.7,
+    "minutes": 180,
+    "file": "assets/maps/regional-ilha_grande.svg"
+  },
+  "acaia": {
+    "label": "Gruta de Acaiá · Ilha Grande",
+    "kind": "Transfer + barco",
+    "distance": 178.2,
+    "minutes": 163,
+    "file": "assets/maps/regional-acaia.svg"
+  },
+  "via_onze": {
+    "label": "Via Onze · Barra",
+    "kind": "Uber",
+    "distance": 25.0,
+    "minutes": 26,
+    "file": "assets/maps/regional-via_onze.svg"
+  }
+}

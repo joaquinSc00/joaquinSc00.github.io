@@ -1,0 +1,918 @@
+{
+  "base": {
+    "lat": -22.97085,
+    "lon": -43.18265
+  },
+  "activities": {
+    "arpoador": {
+      "label": "Arpoador",
+      "modes": {
+        "walk": {
+          "distance": 2.67,
+          "minutes": 33,
+          "file": "assets/maps/arpoador-walk.svg",
+          "nodes": 139,
+          "routingBasis": "walk"
+        },
+        "bike": {
+          "distance": 2.68,
+          "minutes": 11,
+          "file": "assets/maps/arpoador-bike.svg",
+          "nodes": 125,
+          "routingBasis": "scooter"
+        },
+        "scooter": {
+          "distance": 2.68,
+          "minutes": 9,
+          "file": "assets/maps/arpoador-scooter.svg",
+          "nodes": 125,
+          "routingBasis": "scooter"
+        }
+      }
+    },
+    "leme": {
+      "label": "Leme",
+      "modes": {
+        "walk": {
+          "distance": 2.15,
+          "minutes": 27,
+          "file": "assets/maps/leme-walk.svg",
+          "nodes": 72,
+          "routingBasis": "walk"
+        },
+        "bike": {
+          "distance": 2.2,
+          "minutes": 9,
+          "file": "assets/maps/leme-bike.svg",
+          "nodes": 52,
+          "routingBasis": "scooter"
+        },
+        "scooter": {
+          "distance": 2.2,
+          "minutes": 7,
+          "file": "assets/maps/leme-scooter.svg",
+          "nodes": 52,
+          "routingBasis": "scooter"
+        }
+      }
+    },
+    "praia_vermelha": {
+      "label": "Praia Vermelha",
+      "modes": {
+        "walk": {
+          "distance": 3.77,
+          "minutes": 47,
+          "file": "assets/maps/praia_vermelha-walk.svg",
+          "nodes": 157,
+          "routingBasis": "walk"
+        },
+        "bike": {
+          "distance": 4.33,
+          "minutes": 17,
+          "file": "assets/maps/praia_vermelha-bike.svg",
+          "nodes": 165,
+          "routingBasis": "scooter"
+        },
+        "scooter": {
+          "distance": 4.33,
+          "minutes": 14,
+          "file": "assets/maps/praia_vermelha-scooter.svg",
+          "nodes": 165,
+          "routingBasis": "scooter"
+        }
+      }
+    },
+    "leblon": {
+      "label": "Mirante do Leblon",
+      "modes": {
+        "walk": {
+          "distance": 5.71,
+          "minutes": 71,
+          "file": "assets/maps/leblon-walk.svg",
+          "nodes": 193,
+          "routingBasis": "walk"
+        },
+        "bike": {
+          "distance": 8.75,
+          "minutes": 35,
+          "file": "assets/maps/leblon-bike.svg",
+          "nodes": 239,
+          "routingBasis": "scooter"
+        },
+        "scooter": {
+          "distance": 8.75,
+          "minutes": 29,
+          "file": "assets/maps/leblon-scooter.svg",
+          "nodes": 239,
+          "routingBasis": "scooter"
+        }
+      }
+    },
+    "bondinho": {
+      "label": "Bondinho / trilha",
+      "modes": {
+        "walk": {
+          "distance": 3.64,
+          "minutes": 46,
+          "file": "assets/maps/bondinho-walk.svg",
+          "nodes": 147,
+          "routingBasis": "walk"
+        },
+        "bike": {
+          "distance": 4.23,
+          "minutes": 17,
+          "file": "assets/maps/bondinho-bike.svg",
+          "nodes": 157,
+          "routingBasis": "scooter"
+        },
+        "scooter": {
+          "distance": 4.23,
+          "minutes": 14,
+          "file": "assets/maps/bondinho-scooter.svg",
+          "nodes": 157,
+          "routingBasis": "scooter"
+        }
+      }
+    },
+    "cristo": {
+      "label": "Trem do Corcovado",
+      "modes": {
+        "walk": {
+          "distance": 8.51,
+          "minutes": 106,
+          "file": "assets/maps/cristo-walk.svg",
+          "nodes": 462,
+          "routingBasis": "walk"
+        },
+        "bike": {
+          "distance": 11.31,
+          "minutes": 45,
+          "file": "assets/maps/cristo-bike.svg",
+          "nodes": 585,
+          "routingBasis": "scooter"
+        },
+        "scooter": {
+          "distance": 11.31,
+          "minutes": 38,
+          "file": "assets/maps/cristo-scooter.svg",
+          "nodes": 585,
+          "routingBasis": "scooter"
+        }
+      }
+    },
+    "jardim": {
+      "label": "Jardim Botânico",
+      "modes": {
+        "walk": {
+          "distance": 5.69,
+          "minutes": 71,
+          "file": "assets/maps/jardim-walk.svg",
+          "nodes": 216,
+          "routingBasis": "walk"
+        },
+        "bike": {
+          "distance": 8.62,
+          "minutes": 34,
+          "file": "assets/maps/jardim-bike.svg",
+          "nodes": 282,
+          "routingBasis": "scooter"
+        },
+        "scooter": {
+          "distance": 8.62,
+          "minutes": 29,
+          "file": "assets/maps/jardim-scooter.svg",
+          "nodes": 282,
+          "routingBasis": "scooter"
+        }
+      }
+    },
+    "parque_lage": {
+      "label": "Parque Lage",
+      "modes": {
+        "walk": {
+          "distance": 4.19,
+          "minutes": 52,
+          "file": "assets/maps/parque_lage-walk.svg",
+          "nodes": 173,
+          "routingBasis": "walk"
+        },
+        "bike": {
+          "distance": 7.36,
+          "minutes": 29,
+          "file": "assets/maps/parque_lage-bike.svg",
+          "nodes": 250,
+          "routingBasis": "scooter"
+        },
+        "scooter": {
+          "distance": 7.36,
+          "minutes": 25,
+          "file": "assets/maps/parque_lage-scooter.svg",
+          "nodes": 250,
+          "routingBasis": "scooter"
+        }
+      }
+    },
+    "lagoa": {
+      "label": "Lagoa",
+      "modes": {
+        "walk": {
+          "distance": 4.81,
+          "minutes": 60,
+          "file": "assets/maps/lagoa-walk.svg",
+          "nodes": 176,
+          "routingBasis": "walk"
+        },
+        "bike": {
+          "distance": 4.81,
+          "minutes": 19,
+          "file": "assets/maps/lagoa-bike.svg",
+          "nodes": 176,
+          "routingBasis": "walk"
+        },
+        "scooter": {
+          "distance": 4.81,
+          "minutes": 16,
+          "file": "assets/maps/lagoa-scooter.svg",
+          "nodes": 176,
+          "routingBasis": "walk"
+        }
+      }
+    },
+    "dois_irmaos": {
+      "label": "Acceso Vidigal",
+      "modes": {
+        "walk": {
+          "distance": 7.74,
+          "minutes": 97,
+          "file": "assets/maps/dois_irmaos-walk.svg",
+          "nodes": 334,
+          "routingBasis": "walk"
+        },
+        "bike": {
+          "distance": 8.26,
+          "minutes": 33,
+          "file": "assets/maps/dois_irmaos-bike.svg",
+          "nodes": 316,
+          "routingBasis": "scooter"
+        },
+        "scooter": {
+          "distance": 8.26,
+          "minutes": 28,
+          "file": "assets/maps/dois_irmaos-scooter.svg",
+          "nodes": 316,
+          "routingBasis": "scooter"
+        }
+      }
+    },
+    "museu": {
+      "label": "Museu do Amanhã",
+      "modes": {
+        "walk": {
+          "distance": 9.91,
+          "minutes": 124,
+          "file": "assets/maps/museu-walk.svg",
+          "nodes": 484,
+          "routingBasis": "walk"
+        },
+        "bike": {
+          "distance": 9.91,
+          "minutes": 40,
+          "file": "assets/maps/museu-bike.svg",
+          "nodes": 484,
+          "routingBasis": "walk"
+        },
+        "scooter": {
+          "distance": 9.91,
+          "minutes": 33,
+          "file": "assets/maps/museu-scooter.svg",
+          "nodes": 484,
+          "routingBasis": "walk"
+        }
+      }
+    },
+    "santa_teresa": {
+      "label": "Escadaria Selarón",
+      "modes": {
+        "walk": {
+          "distance": 7.32,
+          "minutes": 91,
+          "file": "assets/maps/santa_teresa-walk.svg",
+          "nodes": 323,
+          "routingBasis": "walk"
+        },
+        "bike": {
+          "distance": 10.28,
+          "minutes": 41,
+          "file": "assets/maps/santa_teresa-bike.svg",
+          "nodes": 510,
+          "routingBasis": "scooter"
+        },
+        "scooter": {
+          "distance": 10.28,
+          "minutes": 34,
+          "file": "assets/maps/santa_teresa-scooter.svg",
+          "nodes": 510,
+          "routingBasis": "scooter"
+        }
+      }
+    },
+    "real_gabinete": {
+      "label": "Real Gabinete",
+      "modes": {
+        "walk": {
+          "distance": 8.77,
+          "minutes": 110,
+          "file": "assets/maps/real_gabinete-walk.svg",
+          "nodes": 398,
+          "routingBasis": "walk"
+        },
+        "bike": {
+          "distance": 11.67,
+          "minutes": 47,
+          "file": "assets/maps/real_gabinete-bike.svg",
+          "nodes": 566,
+          "routingBasis": "scooter"
+        },
+        "scooter": {
+          "distance": 11.67,
+          "minutes": 39,
+          "file": "assets/maps/real_gabinete-scooter.svg",
+          "nodes": 566,
+          "routingBasis": "scooter"
+        }
+      }
+    },
+    "colombo": {
+      "label": "Confeitaria Colombo",
+      "modes": {
+        "walk": {
+          "distance": 8.75,
+          "minutes": 109,
+          "file": "assets/maps/colombo-walk.svg",
+          "nodes": 417,
+          "routingBasis": "walk"
+        },
+        "bike": {
+          "distance": 11.8,
+          "minutes": 47,
+          "file": "assets/maps/colombo-bike.svg",
+          "nodes": 571,
+          "routingBasis": "scooter"
+        },
+        "scooter": {
+          "distance": 11.8,
+          "minutes": 39,
+          "file": "assets/maps/colombo-scooter.svg",
+          "nodes": 571,
+          "routingBasis": "scooter"
+        }
+      }
+    },
+    "maracana": {
+      "label": "Maracanã",
+      "modes": {
+        "walk": {
+          "distance": 11.51,
+          "minutes": 144,
+          "file": "assets/maps/maracana-walk.svg",
+          "nodes": 533,
+          "routingBasis": "walk"
+        },
+        "bike": {
+          "distance": 14.4,
+          "minutes": 58,
+          "file": "assets/maps/maracana-bike.svg",
+          "nodes": 590,
+          "routingBasis": "scooter"
+        },
+        "scooter": {
+          "distance": 14.4,
+          "minutes": 48,
+          "file": "assets/maps/maracana-scooter.svg",
+          "nodes": 590,
+          "routingBasis": "scooter"
+        }
+      }
+    },
+    "pedra": {
+      "label": "Pedra do Sal",
+      "modes": {
+        "walk": {
+          "distance": 9.64,
+          "minutes": 121,
+          "file": "assets/maps/pedra-walk.svg",
+          "nodes": 477,
+          "routingBasis": "walk"
+        },
+        "bike": {
+          "distance": 12.57,
+          "minutes": 50,
+          "file": "assets/maps/pedra-bike.svg",
+          "nodes": 619,
+          "routingBasis": "scooter"
+        },
+        "scooter": {
+          "distance": 12.57,
+          "minutes": 42,
+          "file": "assets/maps/pedra-scooter.svg",
+          "nodes": 619,
+          "routingBasis": "scooter"
+        }
+      }
+    },
+    "pagode_garagem": {
+      "label": "Praça Tiradentes",
+      "modes": {
+        "walk": {
+          "distance": 8.26,
+          "minutes": 103,
+          "file": "assets/maps/pagode_garagem-walk.svg",
+          "nodes": 365,
+          "routingBasis": "walk"
+        },
+        "bike": {
+          "distance": 11.03,
+          "minutes": 44,
+          "file": "assets/maps/pagode_garagem-bike.svg",
+          "nodes": 550,
+          "routingBasis": "scooter"
+        },
+        "scooter": {
+          "distance": 11.03,
+          "minutes": 37,
+          "file": "assets/maps/pagode_garagem-scooter.svg",
+          "nodes": 550,
+          "routingBasis": "scooter"
+        }
+      }
+    },
+    "bosque": {
+      "label": "Bosque Bar",
+      "modes": {
+        "walk": {
+          "distance": 6.14,
+          "minutes": 77,
+          "file": "assets/maps/bosque-walk.svg",
+          "nodes": 221,
+          "routingBasis": "walk"
+        },
+        "bike": {
+          "distance": 9.54,
+          "minutes": 38,
+          "file": "assets/maps/bosque-bike.svg",
+          "nodes": 286,
+          "routingBasis": "scooter"
+        },
+        "scooter": {
+          "distance": 9.54,
+          "minutes": 32,
+          "file": "assets/maps/bosque-scooter.svg",
+          "nodes": 286,
+          "routingBasis": "scooter"
+        }
+      }
+    },
+    "barzin": {
+      "label": "Barzin",
+      "modes": {
+        "walk": {
+          "distance": 2.85,
+          "minutes": 36,
+          "file": "assets/maps/barzin-walk.svg",
+          "nodes": 116,
+          "routingBasis": "walk"
+        },
+        "bike": {
+          "distance": 6.39,
+          "minutes": 26,
+          "file": "assets/maps/barzin-bike.svg",
+          "nodes": 164,
+          "routingBasis": "scooter"
+        },
+        "scooter": {
+          "distance": 6.39,
+          "minutes": 21,
+          "file": "assets/maps/barzin-scooter.svg",
+          "nodes": 164,
+          "routingBasis": "scooter"
+        }
+      }
+    },
+    "substation": {
+      "label": "Substation · Siqueira Campos 143",
+      "modes": {
+        "walk": {
+          "distance": 0.74,
+          "minutes": 9,
+          "file": "assets/maps/substation-walk.svg",
+          "nodes": 40,
+          "routingBasis": "walk"
+        },
+        "bike": {
+          "distance": 2.97,
+          "minutes": 12,
+          "file": "assets/maps/substation-bike.svg",
+          "nodes": 90,
+          "routingBasis": "scooter"
+        },
+        "scooter": {
+          "distance": 2.97,
+          "minutes": 10,
+          "file": "assets/maps/substation-scooter.svg",
+          "nodes": 90,
+          "routingBasis": "scooter"
+        }
+      }
+    },
+    "mirante_rocinha": {
+      "label": "Mirante Rocinha",
+      "modes": {
+        "walk": {
+          "distance": 10.09,
+          "minutes": 126,
+          "file": "assets/maps/mirante_rocinha-walk.svg",
+          "nodes": 598,
+          "routingBasis": "walk"
+        },
+        "bike": {
+          "distance": 11.78,
+          "minutes": 47,
+          "file": "assets/maps/mirante_rocinha-bike.svg",
+          "nodes": 498,
+          "routingBasis": "scooter"
+        },
+        "scooter": {
+          "distance": 11.78,
+          "minutes": 39,
+          "file": "assets/maps/mirante_rocinha-scooter.svg",
+          "nodes": 498,
+          "routingBasis": "scooter"
+        }
+      }
+    },
+    "arvrao": {
+      "label": "Mirante do Arvrão",
+      "modes": {
+        "walk": {
+          "distance": 6.76,
+          "minutes": 85,
+          "file": "assets/maps/arvrao-walk.svg",
+          "nodes": 243,
+          "routingBasis": "walk"
+        },
+        "bike": {
+          "distance": 7.09,
+          "minutes": 28,
+          "file": "assets/maps/arvrao-bike.svg",
+          "nodes": 226,
+          "routingBasis": "scooter"
+        },
+        "scooter": {
+          "distance": 7.09,
+          "minutes": 24,
+          "file": "assets/maps/arvrao-scooter.svg",
+          "nodes": 226,
+          "routingBasis": "scooter"
+        }
+      }
+    },
+    "visao_vidigal": {
+      "label": "Visão Vidigal",
+      "modes": {
+        "walk": {
+          "distance": 7.78,
+          "minutes": 97,
+          "file": "assets/maps/visao_vidigal-walk.svg",
+          "nodes": 337,
+          "routingBasis": "walk"
+        },
+        "bike": {
+          "distance": 8.31,
+          "minutes": 33,
+          "file": "assets/maps/visao_vidigal-bike.svg",
+          "nodes": 319,
+          "routingBasis": "scooter"
+        },
+        "scooter": {
+          "distance": 8.31,
+          "minutes": 28,
+          "file": "assets/maps/visao_vidigal-scooter.svg",
+          "nodes": 319,
+          "routingBasis": "scooter"
+        }
+      }
+    },
+    "dedge": {
+      "label": "D-Edge",
+      "modes": {
+        "walk": {
+          "distance": 9.64,
+          "minutes": 121,
+          "file": "assets/maps/dedge-walk.svg",
+          "nodes": 446,
+          "routingBasis": "walk"
+        },
+        "bike": {
+          "distance": 12.94,
+          "minutes": 52,
+          "file": "assets/maps/dedge-bike.svg",
+          "nodes": 676,
+          "routingBasis": "scooter"
+        },
+        "scooter": {
+          "distance": 12.94,
+          "minutes": 43,
+          "file": "assets/maps/dedge-scooter.svg",
+          "nodes": 676,
+          "routingBasis": "scooter"
+        }
+      }
+    },
+    "canastra": {
+      "label": "Canastra",
+      "modes": {
+        "walk": {
+          "distance": 2.94,
+          "minutes": 37,
+          "file": "assets/maps/canastra-walk.svg",
+          "nodes": 120,
+          "routingBasis": "walk"
+        },
+        "bike": {
+          "distance": 4.53,
+          "minutes": 18,
+          "file": "assets/maps/canastra-bike.svg",
+          "nodes": 225,
+          "routingBasis": "scooter"
+        },
+        "scooter": {
+          "distance": 4.53,
+          "minutes": 15,
+          "file": "assets/maps/canastra-scooter.svg",
+          "nodes": 225,
+          "routingBasis": "scooter"
+        }
+      }
+    },
+    "boa_praca": {
+      "label": "Boa Praça",
+      "modes": {
+        "walk": {
+          "distance": 5.2,
+          "minutes": 65,
+          "file": "assets/maps/boa_praca-walk.svg",
+          "nodes": 182,
+          "routingBasis": "walk"
+        },
+        "bike": {
+          "distance": 8.87,
+          "minutes": 35,
+          "file": "assets/maps/boa_praca-bike.svg",
+          "nodes": 241,
+          "routingBasis": "scooter"
+        },
+        "scooter": {
+          "distance": 8.87,
+          "minutes": 30,
+          "file": "assets/maps/boa_praca-scooter.svg",
+          "nodes": 241,
+          "routingBasis": "scooter"
+        }
+      }
+    },
+    "brewteco": {
+      "label": "Brewteco",
+      "modes": {
+        "walk": {
+          "distance": 3.13,
+          "minutes": 39,
+          "file": "assets/maps/brewteco-walk.svg",
+          "nodes": 142,
+          "routingBasis": "walk"
+        },
+        "bike": {
+          "distance": 4.16,
+          "minutes": 17,
+          "file": "assets/maps/brewteco-bike.svg",
+          "nodes": 188,
+          "routingBasis": "scooter"
+        },
+        "scooter": {
+          "distance": 4.16,
+          "minutes": 14,
+          "file": "assets/maps/brewteco-scooter.svg",
+          "nodes": 188,
+          "routingBasis": "scooter"
+        }
+      }
+    },
+    "fairmont": {
+      "label": "Fairmont",
+      "modes": {
+        "walk": {
+          "distance": 1.95,
+          "minutes": 24,
+          "file": "assets/maps/fairmont-walk.svg",
+          "nodes": 61,
+          "routingBasis": "walk"
+        },
+        "bike": {
+          "distance": 1.93,
+          "minutes": 8,
+          "file": "assets/maps/fairmont-bike.svg",
+          "nodes": 53,
+          "routingBasis": "scooter"
+        },
+        "scooter": {
+          "distance": 1.93,
+          "minutes": 6,
+          "file": "assets/maps/fairmont-scooter.svg",
+          "nodes": 53,
+          "routingBasis": "scooter"
+        }
+      }
+    },
+    "hilton": {
+      "label": "Hilton",
+      "modes": {
+        "walk": {
+          "distance": 1.32,
+          "minutes": 16,
+          "file": "assets/maps/hilton-walk.svg",
+          "nodes": 67,
+          "routingBasis": "walk"
+        },
+        "bike": {
+          "distance": 1.72,
+          "minutes": 7,
+          "file": "assets/maps/hilton-bike.svg",
+          "nodes": 52,
+          "routingBasis": "scooter"
+        },
+        "scooter": {
+          "distance": 1.72,
+          "minutes": 6,
+          "file": "assets/maps/hilton-scooter.svg",
+          "nodes": 52,
+          "routingBasis": "scooter"
+        }
+      }
+    },
+    "armazem_senado": {
+      "label": "Rua do Senado",
+      "modes": {
+        "walk": {
+          "distance": 8.85,
+          "minutes": 111,
+          "file": "assets/maps/armazem_senado-walk.svg",
+          "nodes": 392,
+          "routingBasis": "walk"
+        },
+        "bike": {
+          "distance": 11.34,
+          "minutes": 45,
+          "file": "assets/maps/armazem_senado-bike.svg",
+          "nodes": 552,
+          "routingBasis": "scooter"
+        },
+        "scooter": {
+          "distance": 11.34,
+          "minutes": 38,
+          "file": "assets/maps/armazem_senado-scooter.svg",
+          "nodes": 552,
+          "routingBasis": "scooter"
+        }
+      }
+    },
+    "beco_rato": {
+      "label": "Beco do Rato",
+      "modes": {
+        "walk": {
+          "distance": 7.88,
+          "minutes": 98,
+          "file": "assets/maps/beco_rato-walk.svg",
+          "nodes": 350,
+          "routingBasis": "walk"
+        },
+        "bike": {
+          "distance": 10.43,
+          "minutes": 42,
+          "file": "assets/maps/beco_rato-bike.svg",
+          "nodes": 516,
+          "routingBasis": "scooter"
+        },
+        "scooter": {
+          "distance": 10.43,
+          "minutes": 35,
+          "file": "assets/maps/beco_rato-scooter.svg",
+          "nodes": 516,
+          "routingBasis": "scooter"
+        }
+      }
+    },
+    "salgueiro": {
+      "label": "Salgueiro",
+      "modes": {
+        "walk": {
+          "distance": 11.29,
+          "minutes": 141,
+          "file": "assets/maps/salgueiro-walk.svg",
+          "nodes": 532,
+          "routingBasis": "walk"
+        },
+        "bike": {
+          "distance": 14.19,
+          "minutes": 57,
+          "file": "assets/maps/salgueiro-bike.svg",
+          "nodes": 561,
+          "routingBasis": "scooter"
+        },
+        "scooter": {
+          "distance": 14.19,
+          "minutes": 47,
+          "file": "assets/maps/salgueiro-scooter.svg",
+          "nodes": 561,
+          "routingBasis": "scooter"
+        }
+      }
+    },
+    "boma": {
+      "label": "Praça Mauá",
+      "modes": {
+        "walk": {
+          "distance": 9.91,
+          "minutes": 124,
+          "file": "assets/maps/boma-walk.svg",
+          "nodes": 484,
+          "routingBasis": "walk"
+        },
+        "bike": {
+          "distance": 9.91,
+          "minutes": 40,
+          "file": "assets/maps/boma-bike.svg",
+          "nodes": 484,
+          "routingBasis": "walk"
+        },
+        "scooter": {
+          "distance": 9.91,
+          "minutes": 33,
+          "file": "assets/maps/boma-scooter.svg",
+          "nodes": 484,
+          "routingBasis": "walk"
+        }
+      }
+    },
+    "boat_party": {
+      "label": "Marina da Glória",
+      "modes": {
+        "walk": {
+          "distance": 6.8,
+          "minutes": 85,
+          "file": "assets/maps/boat_party-walk.svg",
+          "nodes": 245,
+          "routingBasis": "walk"
+        },
+        "bike": {
+          "distance": 8.42,
+          "minutes": 34,
+          "file": "assets/maps/boat_party-bike.svg",
+          "nodes": 380,
+          "routingBasis": "scooter"
+        },
+        "scooter": {
+          "distance": 8.42,
+          "minutes": 28,
+          "file": "assets/maps/boat_party-scooter.svg",
+          "nodes": 380,
+          "routingBasis": "scooter"
+        }
+      }
+    },
+    "cinema_party": {
+      "label": "Estação NET Rio · Botafogo",
+      "modes": {
+        "walk": {
+          "distance": 3.17,
+          "minutes": 40,
+          "file": "assets/maps/cinema_party-walk.svg",
+          "nodes": 140,
+          "routingBasis": "walk"
+        },
+        "bike": {
+          "distance": 5.53,
+          "minutes": 22,
+          "file": "assets/maps/cinema_party-bike.svg",
+          "nodes": 277,
+          "routingBasis": "scooter"
+        },
+        "scooter": {
+          "distance": 5.53,
+          "minutes": 18,
+          "file": "assets/maps/cinema_party-scooter.svg",
+          "nodes": 277,
+          "routingBasis": "scooter"
+        }
+      }
+    }
+  }
+}

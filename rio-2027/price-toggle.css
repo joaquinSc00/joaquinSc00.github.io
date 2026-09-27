@@ -1,0 +1,4 @@
+.rio-price-toggle{display:inline-block;padding:0 .13em;border-radius:.35em;border-bottom:1px dashed currentColor;cursor:pointer;transition:background .15s ease,color .15s ease;white-space:nowrap}
+.rio-price-toggle:hover,.rio-price-toggle:focus-visible{background:rgba(61,213,243,.15);color:#e9fbff;outline:2px solid rgba(61,213,243,.45);outline-offset:2px}
+.rio-price-toggle::after{content:" ↻";font-size:.72em;opacity:.58}
+@media print{.rio-price-toggle{border:0;padding:0}.rio-price-toggle::after{display:none}}
