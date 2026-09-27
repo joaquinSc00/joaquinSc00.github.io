@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#071a22">
+  <title>Río 2027 · Joaco + Nico</title>
+  <link rel="icon" href="favicon.svg">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="ambient" aria-hidden="true"></div>
+  <header class="topbar">
+    <button class="brand" data-go="explorar" aria-label="Ir a Explorar"><span>RIO</span><small>marzo · 2027</small></button>
+    <div class="top-actions">
+      <button id="syncPill" class="sync-pill" title="Estado de sincronización"><i></i><span>Conectando</span></button>
+      <button id="profileBtn" class="profile-btn"><span id="profileInitial">J</span><b id="profileLabel">Joaco</b></button>
+    </div>
+  </header>
+  <main>
+    <section id="view-explorar" class="view active">
+      <div class="hero">
+        <p class="eyebrow">VIAJE COMPARTIDO · 2 PERSONAS</p>
+        <h1>¿Qué pinta hacer<br><em>en Río?</em></h1>
+        <p>Guardá favoritos, compará planes y armá el viaje sin cerrar nada antes de tiempo.</p>
+        <div class="hero-stats"><span><b id="statIdeas">0</b> ideas</span><span><b id="statVotes">0</b> votos</span><span><b id="statPlan">0</b> en el plan</span></div>
+      </div>
+      <div class="search-row">
+        <label class="search"><span>⌕</span><input id="searchInput" type="search" placeholder="Buscar actividad, barrio o plan…"></label>
+        <button id="currencyBtn" class="currency-btn" title="Cambiar moneda">BRL</button>
+      </div>
+      <div id="categoryChips" class="chips" aria-label="Categorías"></div>
+      <div class="section-heading"><div><p class="eyebrow">EXPLORAR</p><h2 id="resultsTitle">Todas las ideas</h2></div><button id="compareBtn" class="text-btn hidden">Comparar <span id="compareCount">0</span></button></div>
+      <div id="activityGrid" class="activity-grid"></div>
+      <p id="emptyActivities" class="empty hidden">No encontré planes con esos filtros.</p>
+    </section>
+    <section id="view-itinerario" class="view">
+      <div class="page-title"><p class="eyebrow">BORRADOR COMPARTIDO</p><h1>Itinerario</h1><p>Nada queda confirmado por agregarlo. Ordenen, anoten y decidan juntos.</p></div>
+      <div class="plan-status"><div><span class="status-dot"></span><div><b>Plan en construcción</b><small>Los cambios se comparten automáticamente</small></div></div><button data-go="explorar" class="small-btn">+ Sumar plan</button></div>
+      <div id="itineraryList" class="itinerary-list"></div>
+      <div id="emptyItinerary" class="empty-state hidden"><span>🗓️</span><h3>El itinerario está libre</h3><p>Agregá actividades desde Explorar. Después pueden ponerles día, horario y notas.</p><button data-go="explorar" class="primary-btn">Explorar ideas</button></div>
+    </section>
+    <section id="view-mapa" class="view map-view">
+      <div class="page-title"><p class="eyebrow">MAPA GENERAL</p><h1>Todo ubicado</h1><p>Tocá un punto para abrir la actividad. Las posiciones son orientativas; la ficha tiene el enlace exacto.</p></div>
+      <div id="mapFilter" class="chips compact"></div>
+      <div class="map-card general-map-card">
+        <img src="assets/rio-city-map.png" alt="Mapa turístico de Río de Janeiro">
+        <div id="generalMarkers" class="map-markers"></div>
+        <div class="map-key"><span><i class="base-dot"></i> Base: Copacabana</span><span><i></i> Actividad</span></div>
+      </div>
+      <div id="regionalMapCard" class="map-card regional-map-card hidden"><img src="assets/rio-state-map.png" alt="Mapa del estado de Río de Janeiro"><div id="regionalMarkers" class="map-markers"></div></div>
+      <p class="map-credit">Cartografía: <a href="https://commons.wikimedia.org/wiki/File:Rio_de_Janeiro_travel_map.svg" target="_blank" rel="noopener">Peter Fitzgerald / Wikimedia Commons</a>, CC BY-SA 3.0. Recorridos orientativos.</p>
+    </section>
+    <section id="view-presupuesto" class="view">
+      <div class="page-title"><p class="eyebrow">CUENTAS COMPARTIDAS</p><h1>Presupuesto</h1><p>Gastos simples, cambio editable y saldo entre ustedes.</p></div>
+      <div class="budget-total"><small>Total estimado</small><strong id="budgetTotal">R$ 0</strong><span id="budgetSplit">R$ 0 por persona</span></div>
+      <div class="rates-card"><div><b>Cambio manual</b><small>Cuántos ARS y USD vale R$1</small></div><label>ARS <input id="rateARS" inputmode="decimal"></label><label>USD <input id="rateUSD" inputmode="decimal"></label><button id="saveRates" class="icon-btn">✓</button></div>
+      <form id="expenseForm" class="expense-form">
+        <input id="expenseTitle" required placeholder="Ej: Uber al aeropuerto">
+        <div><input id="expenseAmount" required type="number" min="0" step="0.01" placeholder="Monto"><select id="expenseCurrency"><option>BRL</option><option>ARS</option><option>USD</option></select><select id="expensePayer"><option>Joaco</option><option>Nico</option><option>Ambos</option></select></div>
+        <button class="primary-btn" type="submit">Agregar gasto</button>
+      </form>
+      <div class="section-heading"><div><p class="eyebrow">MOVIMIENTOS</p><h2>Gastos</h2></div></div>
+      <div id="expenseList" class="expense-list"></div><p id="emptyExpenses" class="empty hidden">Todavía no cargaron gastos.</p>
+    </section>
+  </main>
+  <nav class="bottom-nav" aria-label="Navegación principal">
+    <button class="active" data-go="explorar"><span>◉</span>Explorar</button><button data-go="itinerario"><span>▤</span>Itinerario</button><button data-go="mapa"><span>⌖</span>Mapa</button><button data-go="presupuesto"><span>＄</span>Presupuesto</button>
+  </nav>
+  <dialog id="activityDialog" class="sheet"><div id="activityDetail"></div></dialog>
+  <dialog id="routeDialog" class="route-dialog"><div id="routeDetail"></div></dialog>
+  <dialog id="profileDialog" class="mini-dialog"><button class="dialog-close" data-close="profileDialog">×</button><p class="eyebrow">¿QUIÉN ESTÁ USANDO?</p><h2>Elegí tu perfil</h2><p>No es un inicio de sesión. Sólo identifica votos y gastos.</p><div class="profile-options"><button data-profile="Joaco"><span>J</span>Joaco</button><button data-profile="Nico"><span>N</span>Nico</button></div></dialog>
+  <dialog id="compareDialog" class="compare-dialog"><div id="compareDetail"></div></dialog>
+  <div id="toast" class="toast" role="status"></div>
+  <script src="activities.js"></script><script src="firebase-config.js"></script><script src="app.js"></script>
+</body>
+</html>
