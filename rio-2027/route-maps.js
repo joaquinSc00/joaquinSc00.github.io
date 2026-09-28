@@ -55,8 +55,8 @@
 
   function json(url){return fetch(url,{cache:'no-cache'}).then(response=>{if(!response.ok)throw new Error(`${url}: HTTP ${response.status}`);return response.json()})}
   Promise.all([
-    json('assets/maps/routes.json').catch(error=>{console.warn('No se cargaron los mapas urbanos:',error);return {activities:{}}}),
-    json('assets/maps/regional-routes.json').catch(error=>{console.warn('No se cargaron los mapas regionales:',error);return {}}),
+    json('assets/maps/routes.json?v=20260927-2').catch(error=>{console.warn('No se cargaron los mapas urbanos:',error);return {activities:{}}}),
+    json('assets/maps/regional-routes.json?v=20260927-2').catch(error=>{console.warn('No se cargaron los mapas regionales:',error);return {}}),
   ]).then(([local,regional])=>{
     routeData=local;regionalData=regional;
     document.querySelectorAll('[data-rio-map-pending]').forEach(node=>{

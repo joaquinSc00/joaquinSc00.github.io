@@ -1,7 +1,8 @@
 (function(){
   'use strict';
   const currencies=['BRL','ARS','USD'];
-  const token=/(R\$|ARS|USD|US\$|(?<!R)\$)\s*([0-9][0-9.,]*)(?:\s*[–—-]\s*([0-9][0-9.,]*))?(\+)?/g;
+  const amount='([0-9](?:[0-9.,]*[0-9])?)';
+  const token=new RegExp('(R\\$|ARS|USD|US\\$|(?<!R)\\$)\\s*'+amount+'(?:\\s*[–—-]\\s*'+amount+')?(\\+)?','g');
   const excluded='script,style,textarea,option,input,select,svg,audio,.rio-price-toggle,.v2-countdown';
 
   function number(raw,currency){

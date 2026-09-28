@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Río de Janeiro 2027 — itinerario económico 7 días</title>
 <meta name="theme-color" content="#08131d" />
-<link rel="stylesheet" href="route-maps.css" />
-<link rel="stylesheet" href="price-toggle.css" />
+<link rel="stylesheet" href="route-maps.css?v=20260927-3" />
+<link rel="stylesheet" href="price-toggle.css?v=20260927-3" />
 <style>
 :root{
   --bg:#08131d; --panel:#0f2231; --panel2:#132a3b; --text:#eef7fb; --muted:#a9bfca;
@@ -550,7 +550,7 @@ function loadState(){
   catch(e){return structuredClone(defaultState)}
 }
 let app=loadState();
-function saveState(){localStorage.setItem(V2_KEY,JSON.stringify(app));window.dispatchEvent(new Event('rio:state-changed'))}
+function saveState(){localStorage.setItem(V2_KEY,JSON.stringify(app));window.dispatchEvent(new CustomEvent('rio:state-changed',{detail:{key:V2_KEY}}))}
 function fmt(n,c=app.displayCurrency){
   const max=c==='ARS'?0:2;
   return new Intl.NumberFormat('es-AR',{style:'currency',currency:c,maximumFractionDigits:max}).format(Number(n)||0);
@@ -738,7 +738,7 @@ const LS='rioActivitiesIntegratedV1';
 let saved=JSON.parse(localStorage.getItem(LS)||'{}'),current=null,cat='Todas',showFavOnly=false;
 const $=id=>document.getElementById(id), cards=$('actlabCards'), drawer=$('actlabDrawer'), route=$('actlabRoute');
 function st(id){return saved[id]||(saved[id]={state:'Pendiente',fav:false,notes:''})}
-function save(){localStorage.setItem(LS,JSON.stringify(saved));window.dispatchEvent(new Event('rio:state-changed'))}
+function save(){localStorage.setItem(LS,JSON.stringify(saved));window.dispatchEvent(new CustomEvent('rio:state-changed',{detail:{key:LS}}))}
 function confClass(c){if(/Oficial|Corroborado|Activo/.test(c))return'good';if(/Por verificar|Reel|variable|agenda|Evento eventual/i.test(c))return'warn';return''}
 function render(){if(!cards)return;const q=$('actlabSearch').value.toLowerCase();const arr=A.filter(a=>(cat==='Todas'||a.cat===cat)&&(!showFavOnly||st(a.id).fav)&&JSON.stringify(a).toLowerCase().includes(q));$('actlabCount').textContent=arr.length+' opciones';$('actlabModeTitle').textContent=showFavOnly?'Finalistas':'Para explorar';$('actlabEmpty').style.display=arr.length?'none':'block';cards.innerHTML=arr.map(a=>`<div class="actlab-card">${st(a.id).fav?'<div class="actlab-fav">★</div>':''}<button data-id="${a.id}"><div class="actlab-icon">${a.icon}</div><div class="actlab-main"><b>${a.name}</b><small>${a.zone} · ${a.duration}</small><span class="actlab-conf">${a.confidence}</span></div><div class="actlab-price">${a.price}</div></button></div>`).join('');cards.querySelectorAll('button[data-id]').forEach(b=>b.onclick=()=>openAct(b.dataset.id));}
 function openAct(id){current=A.find(a=>a.id===id);if(!current)return;const s=st(id);$('actlabKicker').textContent=current.cat;$('actlabTitle').textContent=current.name;$('actlabZone').textContent='📍 '+current.zone;$('actlabPrice').textContent=current.price;$('actlabDuration').textContent=current.duration;$('actlabDistance').textContent=current.dist;$('actlabStateLabel').textContent=s.state;$('actlabConfidence').textContent=current.confidence;$('actlabConfidence').className='act-badge '+confClass(current.confidence);$('actlabInfo').innerHTML='<p>'+current.info+'</p><p><b>Tip:</b> '+current.tip+'</p>';$('actlabHow').innerHTML='<p>'+current.how+'</p>';$('actlabSafety').innerHTML='<p>'+current.safety+'</p>';$('actlabSources').innerHTML=`<p><b>${current.sourceLabel}</b></p><a href="${current.source}" target="_blank" rel="noopener">Abrir fuente</a>`;$('actlabTransport').textContent=current.transport;$('actlabTime').textContent=current.time;$('actlabRDistance').textContent=current.dist;$('actlabReturn').textContent=current.ret;$('actlabTip').textContent=current.tip;$('actlabMapBox').innerHTML=window.rioRealMap?window.rioRealMap(current):mapSvg(current.profile,current.name,current.zone);$('actlabSteps').innerHTML=(current.steps||[]).map((x,i)=>`<div class="act-step"><i>${i+1}</i><span>${x}</span></div>`).join('');route.classList.remove('open');$('actlabFavBtn').textContent=s.fav?'★ Quitar finalista':'☆ Marcar finalista';$('actlabStateSelect').value=s.state;$('actlabNotes').value=s.notes||'';drawer.classList.add('open');drawer.setAttribute('aria-hidden','false');}
@@ -863,10 +863,10 @@ $('actlabRouteBtn').onclick=()=>route.classList.toggle('open');$('actlabClose').
 })();
 </script>
 
-<script src="route-maps.js"></script>
-<script src="price-toggle.js"></script>
-<script src="firebase-config.js"></script>
-<script src="firebase-sync.js"></script>
+<script src="route-maps.js?v=20260927-3"></script>
+<script src="price-toggle.js?v=20260927-3"></script>
+<script src="firebase-config.js?v=20260927-3"></script>
+<script src="firebase-sync.js?v=20260927-3"></script>
 
 </body>
 </html>
